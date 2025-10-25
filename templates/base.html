@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ninjees tailor{% endblock %}</title>
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    fontSize: {
+                        'xs': ['0.75rem', { lineHeight: '1rem' }],
+                        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                        'base': ['0.875rem', { lineHeight: '1.25rem' }],
+                        'lg': ['1rem', { lineHeight: '1.375rem' }],
+                        'xl': ['1.125rem', { lineHeight: '1.5rem' }],
+                        '2xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                        '3xl': ['1.5rem', { lineHeight: '2rem' }],
+                    },
+                    colors: {
+                        'text': {
+                            50: 'oklch(var(--text-50))',
+                            100: 'oklch(var(--text-100))',
+                            200: 'oklch(var(--text-200))',
+                            300: 'oklch(var(--text-300))',
+                            400: 'oklch(var(--text-400))',
+                            500: 'oklch(var(--text-500))',
+                            600: 'oklch(var(--text-600))',
+                            700: 'oklch(var(--text-700))',
+                            800: 'oklch(var(--text-800))',
+                            900: 'oklch(var(--text-900))',
+                            950: 'oklch(var(--text-950))',
+                        },
+                        'background': {
+                            50: 'oklch(var(--background-50))',
+                            100: 'oklch(var(--background-100))',
+                            200: 'oklch(var(--background-200))',
+                            300: 'oklch(var(--background-300))',
+                            400: 'oklch(var(--background-400))',
+                            500: 'oklch(var(--background-500))',
+                            600: 'oklch(var(--background-600))',
+                            700: 'oklch(var(--background-700))',
+                            800: 'oklch(var(--background-800))',
+                            900: 'oklch(var(--background-900))',
+                            950: 'oklch(var(--background-950))',
+                        },
+                        'primary': {
+                            50: 'oklch(var(--primary-50))',
+                            100: 'oklch(var(--primary-100))',
+                            200: 'oklch(var(--primary-200))',
+                            300: 'oklch(var(--primary-300))',
+                            400: 'oklch(var(--primary-400))',
+                            500: 'oklch(var(--primary-500))',
+                            600: 'oklch(var(--primary-600))',
+                            700: 'oklch(var(--primary-700))',
+                            800: 'oklch(var(--primary-800))',
+                            900: 'oklch(var(--primary-900))',
+                            950: 'oklch(var(--primary-950))',
+                        },
+                        'secondary': {
+                            50: 'oklch(var(--secondary-50))',
+                            100: 'oklch(var(--secondary-100))',
+                            200: 'oklch(var(--secondary-200))',
+                            300: 'oklch(var(--secondary-300))',
+                            400: 'oklch(var(--secondary-400))',
+                            500: 'oklch(var(--secondary-500))',
+                            600: 'oklch(var(--secondary-600))',
+                            700: 'oklch(var(--secondary-700))',
+                            800: 'oklch(var(--secondary-800))',
+                            900: 'oklch(var(--secondary-900))',
+                            950: 'oklch(var(--secondary-950))',
+                        },
+                        'accent': {
+                            50: 'oklch(var(--accent-50))',
+                            100: 'oklch(var(--accent-100))',
+                            200: 'oklch(var(--accent-200))',
+                            300: 'oklch(var(--accent-300))',
+                            400: 'oklch(var(--accent-400))',
+                            500: 'oklch(var(--accent-500))',
+                            600: 'oklch(var(--accent-600))',
+                            700: 'oklch(var(--accent-700))',
+                            800: 'oklch(var(--accent-800))',
+                            900: 'oklch(var(--accent-900))',
+                            950: 'oklch(var(--accent-950))',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    {% load currency_filters %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex flex-col h-screen">
+        <!-- Main Header -->
+        {% include 'components/header.html' %}
+        
+        <!-- Content Wrapper -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar Component -->
+            {% include 'components/sidebar.html' %}
+            
+            <!-- Main Content -->
+            <div id="mainContent" class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+    
+    <!-- Component Scripts -->
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    <script src="{% static 'js/header.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}{{ material.name }} - Ninjees tailor{% endblock %}
+{% block page_title %}{{ material.name }}{% endblock %}
+
+{% block breadcrumb %}
+<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+<a href="{% url 'materials:material_list' %}" class="text-gray-500 hover:text-gray-700">Материалууд</a>
+<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+<span class="text-gray-900 font-medium">{{ material.name }}</span>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'materials:material_edit' material.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center text-sm">
+            <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+            Засах
+        </a>
+        <a href="{% url 'materials:material_delete' material.pk %}" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center text-sm">
+            <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+            Устгах
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Material Info -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                        <i data-lucide="package" class="w-8 h-8 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">{{ material.name }}</h1>
+                        <p class="text-gray-600">{{ material.description|default:"Тайлбар байхгүй" }}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Нэгжийн үнэ</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ material.unit_price|format_currency }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Хэмжих нэгж</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ material.unit }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Үлдэгдэл</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ material.stock_quantity }} {{ material.unit }}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Нийлүүлэгч</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ material.supplier|default:"Тодорхойгүй" }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Нийт үнэ</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ material.total_value|format_currency }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Статус</label>
+                            {% if material.is_low_stock %}
+                                <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800">
+                                    Дуусаж байна
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">
+                                    Хангалттай
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Хурдан үйлдэл</h3>
+                <div class="space-y-3">
+                    <a href="{% url 'materials:material_edit' material.pk %}" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center justify-center text-sm">
+                        <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+                        Материал засах
+                    </a>
+                    <a href="{% url 'materials:material_delete' material.pk %}" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center justify-center text-sm">
+                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                        Материал устгах
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Material Stats -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Статистик</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Бүртгэсэн огноо</span>
+                        <span class="text-sm font-medium">{{ material.created_at|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Сүүлд шинэчлэгдсэн</span>
+                        <span class="text-sm font-medium">{{ material.updated_at|date:"Y-m-d" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

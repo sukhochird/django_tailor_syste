@@ -1,0 +1,79 @@
+{% load static %}
+
+<!-- Sidebar -->
+<div id="sidebar" class="bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out flex-shrink-0 flex flex-col sidebar-expanded">
+    
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-4 overflow-y-auto">
+        <div class="space-y-1">
+            {% if user.is_superuser %}
+                <!-- Superuser - All Menus -->
+                <a href="{% url 'dashboard' %}" class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i data-lucide="home" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Хяналтын самбар</span>
+                </a>
+                
+                <a href="{% url 'orders:order_list' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name == 'order_list' %}active{% endif %}">
+                    <i data-lucide="file-text" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Захиалга</span>
+                </a>
+                
+                <a href="{% url 'orders:active_orders' %}" class="sidebar-item {% if request.resolver_match.url_name == 'active_orders' %}active{% endif %}">
+                    <i data-lucide="clock" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Идэвхтэй захиалга</span>
+                </a>
+                
+                <a href="{% url 'customers:customer_list' %}" class="sidebar-item {% if 'customers' in request.resolver_match.namespace %}active{% endif %}">
+                    <i data-lucide="users" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Үйлчлүүлэгчид</span>
+                </a>
+                
+                <a href="{% url 'employees:employee_list' %}" class="sidebar-item {% if 'employees' in request.resolver_match.namespace %}active{% endif %}">
+                    <i data-lucide="user-check" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Ажилтнууд</span>
+                </a>
+                
+                <a href="{% url 'materials:material_list' %}" class="sidebar-item {% if 'materials' in request.resolver_match.namespace %}active{% endif %}">
+                    <i data-lucide="bar-chart-2" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Материалын тайлан</span>
+                </a>
+                
+                <a href="{% url 'reports:report_list' %}" class="sidebar-item {% if 'reports' in request.resolver_match.namespace %}active{% endif %}">
+                    <i data-lucide="bar-chart-3" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Тайлан</span>
+                </a>
+                
+                <a href="{% url 'admin:index' %}" class="sidebar-item">
+                    <i data-lucide="settings" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Тохиргоо</span>
+                </a>
+            {% else %}
+                <!-- Staff - Limited Menus -->
+                <a href="{% url 'orders:order_list' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name == 'order_list' %}active{% endif %}">
+                    <i data-lucide="file-text" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Захиалга</span>
+                </a>
+                
+                <a href="{% url 'orders:active_orders' %}" class="sidebar-item {% if request.resolver_match.url_name == 'active_orders' %}active{% endif %}">
+                    <i data-lucide="clock" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Идэвхтэй захиалга</span>
+                </a>
+                
+                <a href="{% url 'customers:customer_list' %}" class="sidebar-item {% if 'customers' in request.resolver_match.namespace %}active{% endif %}">
+                    <i data-lucide="users" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Үйлчлүүлэгчид</span>
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Footer - Collapse Button -->
+    <div class="p-3 border-t border-gray-200">
+        <button id="sidebarCollapseBtn" class="sidebar-item w-full">
+            <i data-lucide="chevron-left" class="sidebar-icon sidebar-chevron"></i>
+            <span class="sidebar-text">Хураах</span>
+        </button>
+    </div>
+    
+</div>
+

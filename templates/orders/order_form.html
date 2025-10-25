@@ -1,0 +1,790 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Захиалга засах{% else %}Шинэ захиалга{% endif %} - Ninjees tailor{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Захиалга засах{% else %}Шинэ захиалга{% endif %}{% endblock %}
+{% block page_description %}{% if form.instance.pk %}Захиалгын мэдээлэл засах{% else %}Шинэ захиалга үүсгэх{% endif %}{% endblock %}
+
+{% block page_actions %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'orders:order_list' %}" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+            Буцах
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="max-w-5xl mx-auto">
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="orderForm">
+            {% csrf_token %}
+            
+            <!-- Customer Information -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Үйлчлүүлэгчийн мэдээлэл</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Үйлчлүүлэгч хайх <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 relative">
+                                <input type="tel" id="phoneSearch" placeholder="Утасны дугаараар хайх..." 
+                                       class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <div id="searchResults" class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"></div>
+                            </div>
+                            <button type="button" onclick="openCustomerModal()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center text-sm whitespace-nowrap transition-colors">
+                                <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                                Шинэ үйлчлүүлэгч
+                            </button>
+                        </div>
+                        <input type="hidden" id="id_customer" name="customer" value="">
+                        <div id="selectedCustomer" class="mt-2 hidden p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900" id="customerName"></p>
+                                    <p class="text-xs text-gray-600" id="customerPhone"></p>
+                                </div>
+                                <button type="button" onclick="clearCustomer()" class="text-red-600 hover:text-red-800">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% if form.customer.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Утасны дугаараар хайж олох эсвэл шинээр бүртгэх</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Details -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Захиалгын дэлгэрэнгүй</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.item_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Хувцасны төрөл <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.item_type }}
+                        {% if form.item_type.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.item_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.material_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Материалын код
+                        </label>
+                        {{ form.material_code }}
+                        {% if form.material_code.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.material_code.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Материалын код шууд бичиж хадгална</p>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Эхлэх огноо <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.start_date }}
+                        {% if form.start_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Анхдагч: Өнөөдөр</p>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Дуусах огноо <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.due_date.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Анхдагч: Системийн тохиргооноос (14 хоног)</p>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.total_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Нийт дүн (₮) <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.total_amount }}
+                        {% if form.total_amount.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.total_amount.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Анхдагч: Системийн тохиргооноос, засах боломжтой</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Тэмдэглэл
+                    </label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Employees -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                        <i data-lucide="users" class="w-5 h-5 text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Томилогдсон ажилтнууд</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="{{ form.assigned_cutter.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Эсгүүрчин
+                        </label>
+                        {{ form.assigned_cutter }}
+                        {% if form.assigned_cutter.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.assigned_cutter.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.assigned_tailor.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Оёдолчин
+                        </label>
+                        {{ form.assigned_tailor }}
+                        {% if form.assigned_tailor.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.assigned_tailor.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.assigned_trouser_maker.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Өмдний оёдолчин
+                        </label>
+                        {{ form.assigned_trouser_maker }}
+                        {% if form.assigned_trouser_maker.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.assigned_trouser_maker.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design Images -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                        <i data-lucide="image" class="w-5 h-5 text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Загварын зураг</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.design_front.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Зураг 1
+                        </label>
+                        <div id="front-upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i data-lucide="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="{{ form.design_front.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Зураг сонгох</span>
+                                        {{ form.design_front }}
+                                    </label>
+                                    <p class="pl-1">эсвэл буулгах</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (10MB хүртэл)</p>
+                            </div>
+                        </div>
+                        <div id="front-preview" class="mt-2 hidden">
+                            <img id="front-preview-img" src="" alt="Зураг 1" class="w-full h-48 object-contain rounded border">
+                            <button type="button" onclick="clearImagePreview('front')" class="mt-2 text-sm text-red-600 hover:text-red-800">Зураг устгах</button>
+                        </div>
+                        {% if form.design_front.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.design_front.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.instance.design_front %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.design_front.url }}" alt="Зураг 1" class="w-full h-48 object-contain rounded border">
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.design_back.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Зураг 2
+                        </label>
+                        <div id="back-upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i data-lucide="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="{{ form.design_back.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Зураг сонгох</span>
+                                        {{ form.design_back }}
+                                    </label>
+                                    <p class="pl-1">эсвэл буулгах</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (10MB хүртэл)</p>
+                            </div>
+                        </div>
+                        <div id="back-preview" class="mt-2 hidden">
+                            <img id="back-preview-img" src="" alt="Зураг 2" class="w-full h-48 object-contain rounded border">
+                            <button type="button" onclick="clearImagePreview('back')" class="mt-2 text-sm text-red-600 hover:text-red-800">Зураг устгах</button>
+                        </div>
+                        {% if form.design_back.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.design_back.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.instance.design_back %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.design_back.url }}" alt="Зураг 2" class="w-full h-48 object-contain rounded border">
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.design_side.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Зураг 3
+                        </label>
+                        <div id="side-upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i data-lucide="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="{{ form.design_side.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Зураг сонгох</span>
+                                        {{ form.design_side }}
+                                    </label>
+                                    <p class="pl-1">эсвэл буулгах</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (10MB хүртэл)</p>
+                            </div>
+                        </div>
+                        <div id="side-preview" class="mt-2 hidden">
+                            <img id="side-preview-img" src="" alt="Зураг 3" class="w-full h-48 object-contain rounded border">
+                            <button type="button" onclick="clearImagePreview('side')" class="mt-2 text-sm text-red-600 hover:text-red-800">Зураг устгах</button>
+                        </div>
+                        {% if form.design_side.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.design_side.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.instance.design_side %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.design_side.url }}" alt="Зураг 3" class="w-full h-48 object-contain rounded border">
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.design_reference.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Зураг 4
+                        </label>
+                        <div id="reference-upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i data-lucide="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="{{ form.design_reference.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Зураг сонгох</span>
+                                        {{ form.design_reference }}
+                                    </label>
+                                    <p class="pl-1">эсвэл буулгах</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (10MB хүртэл)</p>
+                            </div>
+                        </div>
+                        <div id="reference-preview" class="mt-2 hidden">
+                            <img id="reference-preview-img" src="" alt="Зураг 4" class="w-full h-48 object-contain rounded border">
+                            <button type="button" onclick="clearImagePreview('reference')" class="mt-2 text-sm text-red-600 hover:text-red-800">Зураг устгах</button>
+                        </div>
+                        {% if form.design_reference.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.design_reference.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.instance.design_reference %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.design_reference.url }}" alt="Зураг 4" class="w-full h-48 object-contain rounded border">
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6">
+                <a href="{% url 'orders:order_list' %}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center">
+                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                    Цуцлах
+                </a>
+                <button type="submit" class="px-6 py-2 bg-[oklch(var(--primary-500))] text-white rounded-md hover:opacity-90 flex items-center transition-opacity">
+                    <i data-lucide="{% if form.instance.pk %}save{% else %}plus{% endif %}" class="w-4 h-4 mr-2"></i>
+                    {% if form.instance.pk %}Хадгалах{% else %}Үүсгэх{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Customer Creation Modal -->
+<div id="customerModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Шинэ үйлчлүүлэгч</h3>
+                <button onclick="closeCustomerModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="customerForm" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Овог <span class="text-red-500">*</span></label>
+                    <input type="text" id="last_name" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Нэр <span class="text-red-500">*</span></label>
+                    <input type="text" id="first_name" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Утас <span class="text-red-500">*</span></label>
+                    <input type="tel" id="phone" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Имэйл</label>
+                    <input type="email" id="email" class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Төрөл</label>
+                    <select id="customer_type" class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="regular">Энгийн</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeCustomerModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Цуцлах
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Үүсгэх
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Enhanced Form Input Styling */
+input[type="text"], 
+input[type="number"], 
+input[type="date"], 
+select, 
+textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #1f2937;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+input[type="date"]:hover,
+select:hover,
+textarea:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+input[type="date"]:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    padding-right: 2.75rem;
+    cursor: pointer;
+}
+
+select:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Input with icon wrapper */
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    pointer-events: none;
+}
+
+.input-with-icon {
+    padding-left: 2.5rem;
+}
+
+/* File input styling */
+input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 1.5rem;
+}
+
+/* Date input */
+input[type="date"] {
+    position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Error state */
+input.error,
+select.error,
+textarea.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Success state */
+input.success,
+select.success,
+textarea.success {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+/* Readonly state */
+input[readonly],
+select[readonly],
+textarea[readonly] {
+    background-color: #f9fafb;
+    cursor: default;
+}
+
+/* Custom checkbox and radio (if needed in future) */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Focus visible for accessibility */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate due date when start date changes
+    const startDateInput = document.getElementById('id_start_date');
+    const dueDateInput = document.getElementById('id_due_date');
+    
+    if (startDateInput && dueDateInput) {
+        startDateInput.addEventListener('change', function() {
+            if (startDateInput.value && !dueDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const dueDate = new Date(startDate);
+                dueDate.setDate(dueDate.getDate() + 14);
+                dueDateInput.value = dueDate.toISOString().split('T')[0];
+            }
+        });
+    }
+    
+    // Phone search functionality
+    const phoneSearch = document.getElementById('phoneSearch');
+    const searchResults = document.getElementById('searchResults');
+    const selectedCustomerDiv = document.getElementById('selectedCustomer');
+    const customerName = document.getElementById('customerName');
+    const customerPhone = document.getElementById('customerPhone');
+    const customerInput = document.getElementById('id_customer');
+    
+    let searchTimeout;
+    
+    phoneSearch.addEventListener('input', function() {
+        const phone = this.value.trim();
+        
+        clearTimeout(searchTimeout);
+        
+        if (phone.length < 3) {
+            searchResults.classList.add('hidden');
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            fetch(`/customers/search/?phone=${encodeURIComponent(phone)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.customers && data.customers.length > 0) {
+                        displaySearchResults(data.customers);
+                    } else {
+                        showNoResults(phone);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }, 300);
+    });
+    
+    function displaySearchResults(customers) {
+        searchResults.innerHTML = '';
+        searchResults.classList.remove('hidden');
+        
+        customers.forEach(customer => {
+            const div = document.createElement('div');
+            div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0';
+            div.innerHTML = `
+                <p class="text-sm font-medium text-gray-900">${customer.full_name}</p>
+                <p class="text-xs text-gray-600">${customer.phone}</p>
+            `;
+            div.addEventListener('click', () => selectCustomer(customer));
+            searchResults.appendChild(div);
+        });
+    }
+    
+    function showNoResults(phone) {
+        searchResults.innerHTML = `
+            <div class="p-4 text-center">
+                <p class="text-sm text-gray-600 mb-2">Үйлчлүүлэгч олдсонгүй</p>
+                <button onclick="createCustomerWithPhone('${phone}')" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    Шинээр бүртгэх
+                </button>
+            </div>
+        `;
+        searchResults.classList.remove('hidden');
+    }
+    
+    function selectCustomer(customer) {
+        customerInput.value = customer.id;
+        customerName.textContent = customer.full_name;
+        customerPhone.textContent = customer.phone;
+        selectedCustomerDiv.classList.remove('hidden');
+        searchResults.classList.add('hidden');
+        phoneSearch.value = '';
+    }
+    
+    function clearCustomer() {
+        customerInput.value = '';
+        selectedCustomerDiv.classList.add('hidden');
+        phoneSearch.value = '';
+        phoneSearch.focus();
+    }
+    
+    function createCustomerWithPhone(phone) {
+        document.getElementById('phone').value = phone;
+        openCustomerModal();
+        searchResults.classList.add('hidden');
+    }
+    
+    // Close search results when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!phoneSearch.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.classList.add('hidden');
+        }
+    });
+    
+    // Handle customer form submission
+    const customerForm = document.getElementById('customerForm');
+    if (customerForm) {
+        customerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                last_name: document.getElementById('last_name').value,
+                first_name: document.getElementById('first_name').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                customer_type: document.getElementById('customer_type').value,
+                csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
+            };
+            
+            fetch('{% url "customers:customer_create" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.csrfmiddlewaretoken
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Select the newly created customer
+                    selectCustomer({
+                        id: data.customer_id,
+                        full_name: data.customer_name,
+                        phone: document.getElementById('phone').value
+                    });
+                    
+                    // Close modal and reset form
+                    closeCustomerModal();
+                    customerForm.reset();
+                } else {
+                    alert('Алдаа гарлаа: ' + (data.error || 'Тодорхойгүй алдаа'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            });
+        });
+    }
+});
+
+// Modal functions
+function openCustomerModal() {
+    document.getElementById('customerModal').classList.remove('hidden');
+}
+
+function closeCustomerModal() {
+    document.getElementById('customerModal').classList.add('hidden');
+    document.getElementById('customerForm').reset();
+}
+
+// Close modal when clicking outside
+document.getElementById('customerModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCustomerModal();
+    }
+});
+
+// Image preview functionality
+function setupImagePreview(inputId, previewId, previewImgId, uploadAreaId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const previewImg = document.getElementById(previewImgId);
+    const uploadArea = document.getElementById(uploadAreaId);
+    
+    if (input) {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+}
+
+// Setup previews for all image fields
+setupImagePreview('id_design_front', 'front-preview', 'front-preview-img', 'front-upload-area');
+setupImagePreview('id_design_back', 'back-preview', 'back-preview-img', 'back-upload-area');
+setupImagePreview('id_design_side', 'side-preview', 'side-preview-img', 'side-upload-area');
+setupImagePreview('id_design_reference', 'reference-preview', 'reference-preview-img', 'reference-upload-area');
+
+// Clear image preview function
+function clearImagePreview(type) {
+    const inputId = `id_design_${type}`;
+    const previewId = `${type}-preview`;
+    const uploadAreaId = `${type}-upload-area`;
+    
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const uploadArea = document.getElementById(uploadAreaId);
+    
+    if (input) {
+        input.value = '';
+    }
+    if (preview) {
+        preview.classList.add('hidden');
+    }
+    if (uploadArea) {
+        uploadArea.classList.remove('hidden');
+    }
+}
+</script>
+{% endblock %}

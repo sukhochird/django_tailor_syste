@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}{{ customer.full_name }} - Үйлчлүүлэгч{% endblock %}
+{% block page_title %}Үйлчлүүлэгчийн дэлгэрэнгүй{% endblock %}
+{% block page_description %}{{ customer.full_name }} - {{ customer.get_customer_type_display }}{% endblock %}
+
+{% block page_actions %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'customers:customer_edit' customer.pk %}" class="px-4 py-2 bg-[oklch(var(--primary-500))] text-white rounded-md hover:opacity-90 flex items-center text-sm transition-opacity">
+            <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+            Засах
+        </a>
+        <a href="{% url 'customers:customer_list' %}" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+            Буцах
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Main Customer Information -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Customer Overview -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 {% if customer.customer_type == 'vip' %}bg-yellow-100{% else %}bg-blue-100{% endif %} rounded-full flex items-center justify-center">
+                                {% if customer.customer_type == 'vip' %}
+                                    <i data-lucide="crown" class="w-8 h-8 text-yellow-600"></i>
+                                {% else %}
+                                    <i data-lucide="user" class="w-8 h-8 text-blue-600"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">{{ customer.full_name }}</h3>
+                                <p class="text-gray-600">{{ customer.get_customer_type_display }}</p>
+                            </div>
+                        </div>
+                        <div>
+                            {% if customer.customer_type == 'vip' %}
+                                <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                    VIP
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-800">
+                                    Энгийн
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Овог</label>
+                            <p class="text-gray-900">{{ customer.last_name }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Нэр</label>
+                            <p class="text-gray-900">{{ customer.first_name }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Утасны дугаар</label>
+                            <p class="text-gray-900">{{ customer.phone }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Имэйл</label>
+                            <p class="text-gray-900">{{ customer.email|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Orders -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Захиалгууд</h3>
+                        <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                            {{ orders.count }} захиалга
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        {% if orders %}
+                            <div class="space-y-4">
+                                {% for order in orders %}
+                                <a href="{% url 'orders:order_detail' order.pk %}" class="block border border-l-4 p-4 rounded-lg hover:shadow-md transition-shadow
+                                    {% if order.current_status == 'seamstress_finished' %}
+                                        border-l-green-500 bg-green-50
+                                    {% elif order.is_overdue %}
+                                        border-l-red-500 bg-red-50
+                                    {% else %}
+                                        border-l-blue-500 bg-blue-50
+                                    {% endif %}">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="font-medium text-sm text-gray-900">{{ order.order_number }}</div>
+                                        <div class="flex flex-col items-end space-y-1">
+                                            <span class="px-2 py-1 text-xs rounded-full {{ order.get_status_color }}">
+                                                {{ order.get_status_display }}
+                                            </span>
+                                            {% if order.is_overdue %}
+                                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                                                    Хоцролт
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-600 mb-1">{{ order.item_type }}</div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-900">{{ order.total_amount|format_currency }}</span>
+                                        <span class="text-xs text-gray-500">Дуусах: {{ order.due_date }}</span>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-12">
+                                <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                                <p class="text-gray-500">Захиалга байхгүй байна</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Information -->
+            <div class="space-y-6">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Хурдан үйлдэл</h3>
+                    
+                    <div class="space-y-3">
+                        <a href="{% url 'customers:customer_edit' customer.pk %}" class="w-full px-4 py-2 bg-[oklch(var(--primary-500))] text-white rounded-md hover:opacity-90 flex items-center justify-center text-sm transition-opacity">
+                            <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+                            Үйлчлүүлэгч засах
+                        </a>
+                        
+                        <a href="{% url 'customers:customer_delete' customer.pk %}" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center justify-center text-sm transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                            Устгах
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Customer Timeline -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Актив Үйл Ажиллагаа</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-3 h-3 bg-green-600 rounded-full"></div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Бүртгэгдсэн</p>
+                                <p class="text-xs text-gray-500">{{ customer.created_at|date:"Y-m-d H:i" }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if customer.updated_at != customer.created_at %}
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-3 h-3 bg-yellow-600 rounded-full"></div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Сүүлд зассан</p>
+                                <p class="text-xs text-gray-500">{{ customer.updated_at|date:"Y-m-d H:i" }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Холбоо барих</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <i data-lucide="phone" class="w-4 h-4 text-gray-500 mr-3"></i>
+                            <a href="tel:{{ customer.phone }}" class="text-blue-600 hover:text-blue-800">{{ customer.phone }}</a>
+                        </div>
+                        
+                        {% if customer.email %}
+                        <div class="flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 text-gray-500 mr-3"></i>
+                            <a href="mailto:{{ customer.email }}" class="text-blue-600 hover:text-blue-800">{{ customer.email }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Customer Statistics -->
+                {% if orders %}
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Статистик</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Нийт захиалга</span>
+                            <span class="text-lg font-semibold text-gray-900">{{ total_orders }}</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Дууссан</span>
+                            <span class="text-lg font-semibold text-green-600">{{ completed_orders }}</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Явж буй</span>
+                            <span class="text-lg font-semibold text-blue-600">{{ active_orders }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

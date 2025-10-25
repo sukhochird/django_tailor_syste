@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ material.name }} устгах - Ninjees tailor{% endblock %}
+{% block page_title %}Материал устгах{% endblock %}
+
+{% block breadcrumb %}
+<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+<a href="{% url 'materials:material_list' %}" class="text-gray-500 hover:text-gray-700">Материалууд</a>
+<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+<a href="{% url 'materials:material_detail' material.pk %}" class="text-gray-500 hover:text-gray-700">{{ material.name }}</a>
+<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+<span class="text-gray-900 font-medium">Устгах</span>
+{% endblock %}
+
+{% block page_actions %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'materials:material_detail' material.pk %}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 flex items-center text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+            Буцах
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow p-6">
+            <!-- Warning Icon -->
+            <div class="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-6">
+                <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+            </div>
+            
+            <!-- Warning Message -->
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Материал устгах</h2>
+                <p class="text-gray-600 mb-6">
+                    Та <strong>{{ material.name }}</strong> материалыг устгахыг хүсэж байна. 
+                    Энэ үйлдэл буцаах боломжгүй болно.
+                </p>
+                
+                <!-- Material Details -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">Нэр:</span>
+                            <span class="font-medium">{{ material.name }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Үнэ:</span>
+                            <span class="font-medium">{{ material.unit_price }}₮</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Үлдэгдэл:</span>
+                            <span class="font-medium">{{ material.stock_quantity }} {{ material.unit }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Нийт үнэ:</span>
+                            <span class="font-medium">{{ material.total_value }}₮</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Confirmation Form -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex items-center justify-center space-x-4">
+                    <a href="{% url 'materials:material_detail' material.pk %}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Цуцлах
+                    </a>
+                    <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                        Тийм, устгах
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

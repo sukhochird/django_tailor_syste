@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Ажилтан засах{% else %}Шинэ ажилтан{% endif %} - Ninjees tailor{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Ажилтан засах{% else %}Шинэ ажилтан{% endif %}{% endblock %}
+{% block page_description %}{% if form.instance.pk %}Ажилтны мэдээлэл засах{% else %}Шинэ ажилтан үүсгэх{% endif %}{% endblock %}
+
+{% block page_actions %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'employees:employee_list' %}" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+            Буцах
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="max-w-2xl mx-auto">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Employee Information -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Ажилтны мэдээлэл</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Овог -->
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Овог <span class="text-gray-400">(сонголттой)</span>
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.last_name.help_text }}</p>
+                        {% endif %}
+                        {% if form.last_name.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                                {{ form.last_name.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Нэр -->
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Нэр <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.first_name.help_text }}</p>
+                        {% endif %}
+                        {% if form.first_name.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                                {{ form.first_name.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Утасны дугаар -->
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Утасны дугаар <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.phone.help_text }}</p>
+                        {% endif %}
+                        {% if form.phone.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                                {{ form.phone.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Албан тушаал -->
+                    <div>
+                        <label for="{{ form.employee_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Албан тушаал <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.employee_type }}
+                        {% if form.employee_type.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.employee_type.help_text }}</p>
+                        {% endif %}
+                        {% if form.employee_type.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                                {{ form.employee_type.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Идэвхтэй төлөв -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex items-center">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700 cursor-pointer">
+                            Идэвхтэй ажилтан
+                        </label>
+                    </div>
+                    {% if form.is_active.help_text %}
+                        <p class="mt-1 ml-8 text-xs text-gray-500">{{ form.is_active.help_text }}</p>
+                    {% endif %}
+                    {% if form.is_active.errors %}
+                        <p class="mt-1 ml-8 text-sm text-red-600 flex items-center">
+                            <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                            {{ form.is_active.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Login Access Information -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Нэвтрэх эрх</h3>
+                
+                <!-- Нэвтрэх эрхтэй checkbox -->
+                <div class="mb-6">
+                    <div class="flex items-center">
+                        {{ form.has_login_access }}
+                        <label for="{{ form.has_login_access.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700 cursor-pointer">
+                            Ажилтан нэвтрэх эрхтэй
+                        </label>
+                    </div>
+                    {% if form.has_login_access.help_text %}
+                        <p class="mt-1 ml-8 text-xs text-gray-500">{{ form.has_login_access.help_text }}</p>
+                    {% endif %}
+                    {% if form.has_login_access.errors %}
+                        <p class="mt-1 ml-8 text-sm text-red-600 flex items-center">
+                            <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                            {{ form.has_login_access.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Нууц үг -->
+                <div>
+                    <label for="{{ form.login_password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Нууц үг
+                    </label>
+                    {{ form.login_password }}
+                    {% if form.login_password.help_text %}
+                        <p class="mt-1 text-xs text-gray-500">{{ form.login_password.help_text }}</p>
+                    {% endif %}
+                    {% if form.login_password.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                            {{ form.login_password.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% if form.instance.pk and form.instance.has_login_access and form.instance.user %}
+                <div class="mt-4 p-3 bg-blue-50 rounded-md">
+                    <p class="text-sm text-blue-700">
+                        <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                        Username: <span class="font-mono font-semibold">{{ form.instance.user.username }}</span>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6">
+                <a href="{% url 'employees:employee_list' %}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    Цуцлах
+                </a>
+                <button type="submit" class="px-6 py-2 bg-[oklch(var(--primary-500))] text-white rounded-md hover:opacity-90 transition-opacity flex items-center">
+                    {% if form.instance.pk %}
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                        Хадгалах
+                    {% else %}
+                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                        Үүсгэх
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* All form elements styling */
+input[type="text"],
+input[type="tel"],
+select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    background-color: white;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus,
+select:focus {
+    outline: none;
+    border-color: oklch(var(--primary-500));
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+input[type="text"]:hover,
+input[type="tel"]:hover,
+select:hover {
+    border-color: #9ca3af;
+}
+
+input[type="text"]:invalid:not(:placeholder-shown),
+input[type="tel"]:invalid:not(:placeholder-shown) {
+    border-color: #fca5a5;
+}
+
+input[type="text"]:valid:not(:placeholder-shown),
+input[type="tel"]:valid:not(:placeholder-shown) {
+    border-color: #86efac;
+}
+
+/* Select specific styling */
+select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+}
+
+input[type="checkbox"]:checked {
+    background-color: oklch(var(--primary-500));
+    border-color: oklch(var(--primary-500));
+}
+
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Error message animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+    animation: shake 0.3s ease-in-out;
+}
+</style>
+
+<script>
+// Toggle password field visibility based on login access checkbox
+document.addEventListener('DOMContentLoaded', function() {
+    const loginAccessCheckbox = document.getElementById('{{ form.has_login_access.id_for_label }}');
+    const passwordField = document.getElementById('{{ form.login_password.id_for_label }}');
+    const passwordLabel = passwordField.closest('div');
+    
+    function togglePasswordField() {
+        if (loginAccessCheckbox.checked) {
+            passwordLabel.style.display = 'block';
+        } else {
+            passwordLabel.style.display = 'none';
+            passwordField.value = '';
+        }
+    }
+    
+    // Initial state
+    togglePasswordField();
+    
+    // Toggle on checkbox change
+    loginAccessCheckbox.addEventListener('change', togglePasswordField);
+});
+</script>
+{% endblock %}

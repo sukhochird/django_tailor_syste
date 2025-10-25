@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Тайлан - Ninjees tailor{% endblock %}
+{% block page_title %}Тайлан{% endblock %}
+{% block page_description %}Системийн тайлан болон статистик{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Тайлан</h1>
+                <p class="text-sm text-gray-600 mt-1">Системийн тайлан болон статистик</p>
+            </div>
+            
+            <!-- Period Filter and Actions -->
+            <div class="flex items-center space-x-3">
+                <!-- Period Filter -->
+                <div class="flex items-center space-x-2 bg-gray-50 rounded-lg p-1">
+                    {% with period='this_month' %}
+                    <a href="?period={{ period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if report_type_filter and report_type_filter != 'all' %}&report_type={{ report_type_filter }}{% endif %}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if period_filter == period %}bg-white text-blue-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                        <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>
+                        Энэ сар
+                    </a>
+                    {% endwith %}
+                    {% with period='quarter' %}
+                    <a href="?period={{ period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if report_type_filter and report_type_filter != 'all' %}&report_type={{ report_type_filter }}{% endif %}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if period_filter == period %}bg-white text-blue-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                        <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>
+                        Улирал
+                    </a>
+                    {% endwith %}
+                    {% with period='this_year' %}
+                    <a href="?period={{ period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if report_type_filter and report_type_filter != 'all' %}&report_type={{ report_type_filter }}{% endif %}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if period_filter == period %}bg-white text-blue-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                        <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>
+                        Энэ жил
+                    </a>
+                    {% endwith %}
+                    {% with period='all_time' %}
+                    <a href="?period={{ period }}{% if search_query %}&search={{ search_query }}{% endif %}{% if report_type_filter and report_type_filter != 'all' %}&report_type={{ report_type_filter }}{% endif %}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if period_filter == period %}bg-white text-blue-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                        <i data-lucide="infinity" class="w-4 h-4 inline mr-1"></i>
+                        Бүх цаг
+                    </a>
+                    {% endwith %}
+                    <a href="#" onclick="showCustomDatePicker(); return false;" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if period_filter == 'custom' %}bg-white text-blue-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                        <i data-lucide="calendar-plus" class="w-4 h-4 inline mr-1"></i>
+                        Тусгай
+                    </a>
+                </div>
+                
+                {% if start_date and end_date %}
+                <div class="px-3 py-2 bg-blue-50 text-blue-700 rounded-md text-sm font-medium">
+                    <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>
+                    {{ start_date|date:"Y.m.d" }} - {{ end_date|date:"Y.m.d" }}
+                </div>
+                {% endif %}
+                
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm">
+                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                    PDF татах
+                </button>
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                    Excel татах
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Нийт захиалга</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_orders }}</p>
+                    {% if order_change_percent > 0 %}
+                    <p class="text-xs text-green-600">+{{ order_change_percent|floatformat:0 }}% өмнөх сараас</p>
+                    {% elif order_change_percent < 0 %}
+                    <p class="text-xs text-red-600">{{ order_change_percent|floatformat:0 }}% өмнөх сараас</p>
+                    {% else %}
+                    <p class="text-xs text-gray-600">Өөрчлөгдөөгүй</p>
+                    {% endif %}
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Нийт орлого</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_revenue|format_currency }}</p>
+                    {% if revenue_change_percent > 0 %}
+                    <p class="text-xs text-green-600">+{{ revenue_change_percent|floatformat:0 }}% өмнөх сараас</p>
+                    {% elif revenue_change_percent < 0 %}
+                    <p class="text-xs text-red-600">{{ revenue_change_percent|floatformat:0 }}% өмнөх сараас</p>
+                    {% else %}
+                    <p class="text-xs text-gray-600">Өөрчлөгдөөгүй</p>
+                    {% endif %}
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Дууссан захиалга</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ completed_orders }}</p>
+                    <p class="text-xs text-blue-600">{{ completion_rate|floatformat:0 }}% дуусгах хувь</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Хоцорсон</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ overdue_orders }}</p>
+                    {% if overdue_orders > 0 %}
+                    <p class="text-xs text-red-600">Арга хэмжээ хэрэгтэй</p>
+                    {% else %}
+                    <p class="text-xs text-green-600">Бүх захиалга цагт нийцэж байна</p>
+                    {% endif %}
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Types -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Sales Report -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Борлуулалтын тайлан</h3>
+                <p class="text-sm text-gray-600">Захиалга болон орлогын тайлан</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-green-600 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Орлого</p>
+                                <p class="text-sm text-gray-600">{{ total_revenue|format_currency }}</p>
+                            </div>
+                        </div>
+                        {% if revenue_change_percent > 0 %}
+                        <span class="text-green-600 text-sm font-medium">+{{ revenue_change_percent|floatformat:0 }}%</span>
+                        {% elif revenue_change_percent < 0 %}
+                        <span class="text-red-600 text-sm font-medium">{{ revenue_change_percent|floatformat:0 }}%</span>
+                        {% else %}
+                        <span class="text-gray-600 text-sm font-medium">0%</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="users" class="w-5 h-5 text-blue-600 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Шинэ үйлчлүүлэгч</p>
+                                <p class="text-sm text-gray-600">{{ new_customers_this_month }} хүн</p>
+                            </div>
+                        </div>
+                        {% if customers_change_percent > 0 %}
+                        <span class="text-blue-600 text-sm font-medium">+{{ customers_change_percent|floatformat:0 }}%</span>
+                        {% elif customers_change_percent < 0 %}
+                        <span class="text-red-600 text-sm font-medium">{{ customers_change_percent|floatformat:0 }}%</span>
+                        {% else %}
+                        <span class="text-gray-600 text-sm font-medium">0%</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="clock" class="w-5 h-5 text-yellow-600 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Дундаж дуусах хугацаа</p>
+                                <p class="text-sm text-gray-600">
+                                    {% if avg_completion_days %}
+                                        {{ avg_completion_days }} хоног
+                                    {% else %}
+                                        Мэдээлэл байхгүй
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <a href="#" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center text-sm">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 mr-2"></i>
+                        Дэлгэрэнгүй тайлан харах
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Report -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Материалын тайлан</h3>
+                <p class="text-sm text-gray-600">Материалын үлдэгдэл болон зарцуулалт</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="package" class="w-5 h-5 text-purple-600 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Нийт материал</p>
+                                <p class="text-sm text-gray-600">{{ unique_materials }} төрөл</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Бага ашиглагддаг</p>
+                                <p class="text-sm text-gray-600">{{ low_usage_materials }} материал</p>
+                            </div>
+                        </div>
+                        {% if low_usage_materials > 0 %}
+                        <span class="text-red-600 text-sm font-medium">Шуурхай</span>
+                        {% else %}
+                        <span class="text-green-600 text-sm font-medium">Хэвийн</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <a href="{% url 'materials:material_list' %}" class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center justify-center text-sm">
+                        <i data-lucide="package" class="w-4 h-4 mr-2"></i>
+                        Материалын тайлан харах
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Report -->
+    <div class="bg-white rounded-lg shadow mb-8">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">Гүйцэтгэлийн тайлан</h3>
+            <p class="text-sm text-gray-600">Ажилтнуудын гүйцэтгэл болон статистик</p>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ажилтан</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Албан тушаал</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дууссан захиалга</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дундаж хугацаа</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Үнэлгээ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for employee in top_employees %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ employee.full_name }}</div>
+                                        <div class="text-sm text-gray-500">{{ employee.get_employee_type_display }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ employee.get_employee_type_display }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ employee.completed_count }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {% if avg_completion_days %}
+                                    {{ avg_completion_days }} хоног
+                                {% else %}
+                                    Мэдээлэл байхгүй
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex text-yellow-400">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= 4 %}
+                                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                            {% else %}
+                                        <i data-lucide="star" class="w-4 h-4"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-600">4.0</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                Идэвхтэй ажилтан олдсонгүй
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Reports -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">Өдрийн тайлан</h4>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Өдөр тутмын захиалга болон орлогын тайлан</p>
+            <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                Үзэх
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <i data-lucide="users" class="w-5 h-5 text-green-600"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">Үйлчлүүлэгчийн тайлан</h4>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Үйлчлүүлэгчдийн дэлгэрэнгүй статистик</p>
+            <button class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
+                Үзэх
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">Тренд тайлан</h4>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Захиалга болон орлогын тренд шинжилгээ</p>
+            <button class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm">
+                Үзэх
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Date Picker Modal -->
+<div id="customDateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Тусгай хугацаа сонгох</h3>
+        <form method="get" action="">
+            <input type="hidden" name="period" value="custom">
+            {% if search_query %}
+            <input type="hidden" name="search" value="{{ search_query }}">
+            {% endif %}
+            {% if report_type_filter and report_type_filter != 'all' %}
+            <input type="hidden" name="report_type" value="{{ report_type_filter }}">
+            {% endif %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Эхлэх огноо</label>
+                    <input type="date" name="start_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Дуусах огноо</label>
+                    <input type="date" name="end_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 mt-6">
+                <button type="button" onclick="hideCustomDatePicker()" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
+                    Цуцлах
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                    Харгалзаах
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showCustomDatePicker() {
+    document.getElementById('customDateModal').classList.remove('hidden');
+}
+
+function hideCustomDatePicker() {
+    document.getElementById('customDateModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('customDateModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideCustomDatePicker();
+    }
+});
+
+// Reinitialize Lucide icons after page load
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}
