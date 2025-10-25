@@ -8,6 +8,7 @@ import string
 
 class Employee(models.Model):
     EMPLOYEE_TYPE_CHOICES = [
+        ('manager', 'Менежер'),
         ('cutter', 'Эсгүүрчин'),
         ('shirt_cutter', 'Цамцны эсгүүрчин'),
         ('jacket_sewer', 'Пиджак оёдолчин'),
@@ -98,18 +99,12 @@ class Employee(models.Model):
 
 @receiver(post_save, sender=Employee)
 def update_user_account(sender, instance, created, **kwargs):
-    """Automatically create/update user account when employee is saved"""
+    """Automatically create user account when employee is saved"""
     if instance.has_login_access:
         if not instance.user:
-            # Create user account if login access is enabled
+            # Create user account if login access is enabled and no user is manually selected
             instance.create_user_account()
-        else:
-            # Update user information if it exists
-            user = instance.user
-            user.first_name = instance.first_name
-            user.last_name = instance.last_name
-            user.is_active = instance.is_active
-            user.save()
+        # Note: If user is manually selected, don't auto-update it
     else:
         # Remove user account if login access is disabled
         if instance.user:

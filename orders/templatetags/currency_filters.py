@@ -44,3 +44,11 @@ def is_status_completed(order, status_code):
     Check if a specific status has been completed for an order
     """
     return order.is_status_completed(status_code)
+
+@register.filter
+def get_status_history(order, status_code):
+    """
+    Get the first (oldest) status history entry for a specific status
+    """
+    history = order.status_history.filter(status=status_code).order_by('completed_at').first()
+    return history

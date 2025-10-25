@@ -13,12 +13,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('', views.dashboard, name='dashboard'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('landing/', views.landing_page, name='landing'),
     path('orders/', include('orders.urls')),
     path('customers/', include('customers.urls')),
     path('employees/', include('employees.urls')),
     path('materials/', include('materials.urls')),
     path('reports/', include('reports.urls')),
+    path('', views.landing_page, name='home'),  # Landing page as home
 ]
 
 if settings.DEBUG:

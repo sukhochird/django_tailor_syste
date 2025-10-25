@@ -10,10 +10,10 @@ class Order(models.Model):
         ('order_placed', 'Захиалга өгсөн'),
         ('material_arrived', 'Материал ирсэн'),
         ('cutter_cutting', 'Эсгүүрчин эсгэсэн'),
-        ('customer_first_fitting', 'Үйлчлүүлэгч 1-р хэмжээ'),
+        ('customer_first_fitting', 'Үйлчлүүлэгч 1-р хэмжээ өмссөн'),
         ('tailor_first_completion', 'Эсгүүрчин 1-р хэмжээ миллэсэн'),
         ('seamstress_second_prep', 'Оёдолчин 2-р хэмжээ бэлдсэн'),
-        ('customer_second_fitting', 'Үйлчлүүлэгч 2-р хэмжээ'),
+        ('customer_second_fitting', 'Үйлчлүүлэгч 2-р хэмжээ өмссөн'),
         ('tailor_second_completion', 'Эсгүүрчин 2-р хэмжээ миллэсэн'),
         ('seamstress_finished', 'Оёдолчин оёж дууссан'),
     ]

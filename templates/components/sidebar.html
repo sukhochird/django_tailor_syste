@@ -38,9 +38,14 @@
                     <span class="sidebar-text">Материалын тайлан</span>
                 </a>
                 
-                <a href="{% url 'reports:report_list' %}" class="sidebar-item {% if 'reports' in request.resolver_match.namespace %}active{% endif %}">
+                <a href="{% url 'reports:report_list' %}" class="sidebar-item {% if 'reports' in request.resolver_match.namespace and request.resolver_match.url_name == 'report_list' %}active{% endif %}">
                     <i data-lucide="bar-chart-3" class="sidebar-icon"></i>
                     <span class="sidebar-text">Тайлан</span>
+                </a>
+                
+                <a href="{% url 'reports:employee_workload' %}" class="sidebar-item {% if request.resolver_match.url_name == 'employee_workload' %}active{% endif %}">
+                    <i data-lucide="user-cog" class="sidebar-icon"></i>
+                    <span class="sidebar-text">Ажилтаны тайлан</span>
                 </a>
                 
                 <a href="{% url 'admin:index' %}" class="sidebar-item">

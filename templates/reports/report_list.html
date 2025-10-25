@@ -325,6 +325,60 @@
         </div>
     </div>
 
+    <!-- Province Statistics Report -->
+    <div class="bg-white rounded-lg shadow mb-8">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">Аймгийн тайлан</h3>
+            <p class="text-sm text-gray-600">Аймаг бүрийн үйлчлүүлэгч болон захиалгын статистик</p>
+        </div>
+        <div class="p-6">
+            {% if province_stats %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Аймаг</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Үйлчлүүлэгч</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Захиалга</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Орлого</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for stat in province_stats %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ forloop.counter }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ stat.name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                <span class="font-medium">{{ stat.customers }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                <span class="font-medium">{{ stat.orders }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                <span class="font-medium text-green-600">{{ stat.revenue|format_currency }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i data-lucide="map-pin" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500">Аймгийн статистик мэдээлэл байхгүй байна</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Quick Reports -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg shadow p-6">

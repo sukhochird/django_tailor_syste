@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -220,6 +220,41 @@ class ReportListView(SuperuserRequiredMixin, ListView):
             count=Count('id')
         ).filter(count__lt=2).count()
         
+        # Province statistics
+        province_stats = []
+        for province_code, province_name in Customer.PROVINCE_CHOICES:
+            province_customers = Customer.objects.filter(province=province_code)
+            if start_date:
+                province_customers = province_customers.filter(created_at__date__gte=start_date)
+            if end_date:
+                province_customers = province_customers.filter(created_at__date__lte=end_date)
+            
+            customer_count = province_customers.count()
+            
+            # Get orders from these customers
+            province_orders = Order.objects.filter(
+                customer__province=province_code
+            )
+            if start_date:
+                province_orders = province_orders.filter(created_at__date__gte=start_date)
+            if end_date:
+                province_orders = province_orders.filter(created_at__date__lte=end_date)
+            
+            order_count = province_orders.count()
+            province_revenue = province_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+            
+            if customer_count > 0 or order_count > 0:
+                province_stats.append({
+                    'name': province_name,
+                    'code': province_code,
+                    'customers': customer_count,
+                    'orders': order_count,
+                    'revenue': province_revenue
+                })
+        
+        # Sort by customers count descending
+        province_stats.sort(key=lambda x: x['customers'], reverse=True)
+        
         # Add to context
         context['report_type_choices'] = Report.REPORT_TYPE_CHOICES
         context['search_query'] = self.request.GET.get('search', '')
@@ -246,6 +281,8 @@ class ReportListView(SuperuserRequiredMixin, ListView):
         
         context['unique_materials'] = unique_materials
         context['low_usage_materials'] = low_usage_materials
+        
+        context['province_stats'] = province_stats
         
         return context
 
@@ -276,3 +313,81 @@ class ReportDeleteView(SuperuserRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Тайлан амжилттай устгагдлаа.')
         return super().delete(request, *args, **kwargs)
+
+
+@login_required
+def show_employee_workload(request):
+    """Show employee workload report"""
+    if not request.user.is_superuser:
+        messages.warning(request, 'Та энэ хуудсанд хандах эрхгүй байна.')
+        return redirect('orders:order_list')
+    
+    employees = Employee.objects.filter(is_active=True).order_by('last_name', 'first_name')
+    
+    # Calculate workload for each employee
+    employee_data = []
+    for employee in employees:
+        # Get all orders assigned to this employee (as tailor, cutter, or trouser maker)
+        tailor_orders = employee.tailor_orders.exclude(current_status='seamstress_finished')
+        cutter_orders = employee.cutter_orders.exclude(current_status='seamstress_finished')
+        trouser_maker_orders = employee.trouser_maker_orders.exclude(current_status='seamstress_finished')
+        
+        # Total active orders
+        total_active = tailor_orders.count() + cutter_orders.count() + trouser_maker_orders.count()
+        
+        # Completed orders
+        completed_tailor = employee.tailor_orders.filter(current_status='seamstress_finished').count()
+        completed_cutter = employee.cutter_orders.filter(current_status='seamstress_finished').count()
+        completed_trouser = employee.trouser_maker_orders.filter(current_status='seamstress_finished').count()
+        total_completed = completed_tailor + completed_cutter + completed_trouser
+        
+        # Overdue orders
+        today = timezone.now().date()
+        overdue_tailor = tailor_orders.filter(due_date__lt=today).count()
+        overdue_cutter = cutter_orders.filter(due_date__lt=today).count()
+        overdue_trouser = trouser_maker_orders.filter(due_date__lt=today).count()
+        total_overdue = overdue_tailor + overdue_cutter + overdue_trouser
+        
+        # Calculate workload indicator
+        if total_active == 0:
+            workload_status = 'low'
+            workload_text = 'Хоосон'
+        elif total_active <= 3:
+            workload_status = 'normal'
+            workload_text = 'Хэвийн'
+        elif total_active <= 6:
+            workload_status = 'high'
+            workload_text = 'Өндөр'
+        else:
+            workload_status = 'critical'
+            workload_text = 'Маш өндөр'
+        
+        employee_data.append({
+            'employee': employee,
+            'total_active': total_active,
+            'total_completed': total_completed,
+            'total_overdue': total_overdue,
+            'workload_status': workload_status,
+            'workload_text': workload_text,
+            'tailor_orders': tailor_orders.count(),
+            'cutter_orders': cutter_orders.count(),
+            'trouser_maker_orders': trouser_maker_orders.count(),
+        })
+    
+    # Sort by total active orders (descending)
+    employee_data.sort(key=lambda x: x['total_active'], reverse=True)
+    
+    # Calculate totals
+    total_active_orders = sum(emp['total_active'] for emp in employee_data)
+    total_overdue_orders = sum(emp['total_overdue'] for emp in employee_data)
+    total_completed_orders = sum(emp['total_completed'] for emp in employee_data)
+    
+    context = {
+        'employee_data': employee_data,
+        'total_employees': len(employee_data),
+        'total_active_orders': total_active_orders,
+        'total_overdue_orders': total_overdue_orders,
+        'total_completed_orders': total_completed_orders,
+    }
+    
+    return render(request, 'reports/employee_workload.html', context)

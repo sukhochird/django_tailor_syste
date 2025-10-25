@@ -8,10 +8,41 @@ class Customer(models.Model):
         ('vip', 'VIP үйлчлүүлэгч'),
     ]
     
+    PROVINCE_CHOICES = [
+        ('ulaanbaatar', 'Улаанбаатар'),
+        ('arkhangai', 'Архангай'),
+        ('bayankhongor', 'Баянхонгор'),
+        ('bayanolgii', 'Баян-Өлгий'),
+        ('bulgan', 'Булган'),
+        ('govialtai', 'Говь-Алтай'),
+        ('govisumber', 'Говьсүмбэр'),
+        ('darkhan', 'Дархан-Уул'),
+        ('dornod', 'Дорнод'),
+        ('dornogovi', 'Дорноговь'),
+        ('dundgovi', 'Дундговь'),
+        ('zavkhan', 'Завхан'),
+        ('orhon', 'Орхон'),
+        ('ovorkhangai', 'Өвөрхангай'),
+        ('omnogovi', 'Өмноговь'),
+        ('suhebaatar', 'Сүхбаатар'),
+        ('selenge', 'Сэлэнгэ'),
+        ('tov', 'Төв'),
+        ('uvs', 'Увс'),
+        ('hovsgol', 'Хөвсгөл'),
+        ('khovd', 'Ховд'),
+        ('khentii', 'Хэнтий'),
+    ]
+    
     first_name = models.CharField(max_length=100, verbose_name="Нэр")
     last_name = models.CharField(max_length=100, verbose_name="Овог")
     phone = models.CharField(max_length=20, verbose_name="Утасны дугаар")
     email = models.EmailField(blank=True, null=True, verbose_name="Имэйл")
+    province = models.CharField(
+        max_length=20,
+        choices=PROVINCE_CHOICES,
+        default='ulaanbaatar',
+        verbose_name="Аймаг"
+    )
     customer_type = models.CharField(
         max_length=10, 
         choices=CUSTOMER_TYPE_CHOICES, 

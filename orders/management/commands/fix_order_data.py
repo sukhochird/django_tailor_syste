@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 elif status_code in ['cutter_cutting']:
                     completed_by = next((emp for emp in employees if emp.employee_type == 'cutter'), employees[0])
                 elif status_code in ['customer_first_fitting', 'customer_second_fitting']:
-                    completed_by = None  # Customer action
+                    completed_by = employees[0] if employees else None  # Set to an employee
                 elif status_code in ['tailor_first_completion', 'tailor_second_completion']:
                     completed_by = next((emp for emp in employees if emp.employee_type == 'tailor'), employees[0])
                 elif status_code in ['seamstress_second_prep', 'seamstress_finished']:

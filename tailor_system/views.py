@@ -7,6 +7,11 @@ from customers.models import Customer
 from employees.models import Employee
 
 
+def landing_page(request):
+    """Public landing page for Ninjee & Saraa's Tailor"""
+    return render(request, 'landing.html')
+
+
 def login_view(request):
     """Custom login view"""
     if request.user.is_authenticated:

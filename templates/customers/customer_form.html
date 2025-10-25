@@ -93,6 +93,23 @@
                         {% endif %}
                     </div>
                     
+                    <!-- Аймаг -->
+                    <div>
+                        <label for="{{ form.province.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Аймаг
+                        </label>
+                        {{ form.province }}
+                        {% if form.province.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.province.help_text }}</p>
+                        {% endif %}
+                        {% if form.province.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                                {{ form.province.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
                     <!-- Үйлчлүүлэгчийн төрөл -->
                     <div class="md:col-span-2">
                         <label for="{{ form.customer_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">

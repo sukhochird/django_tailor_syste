@@ -102,6 +102,7 @@ class CustomerCreateView(LoginRequiredMixin, CreateView):
                     first_name=data.get('first_name'),
                     phone=data.get('phone'),
                     email=data.get('email', ''),
+                    province=data.get('province', 'ulaanbaatar'),
                     customer_type=data.get('customer_type', 'regular')
                 )
                 
@@ -160,7 +161,27 @@ def search_customers(request):
             'full_name': customer.full_name,
             'phone': customer.phone,
             'email': customer.email or '',
+            'province': customer.province,
             'customer_type': customer.customer_type
         })
     
     return JsonResponse({'customers': results})
+
+
+@require_http_methods(["GET"])
+def get_customer(request, pk):
+    """Get customer details as JSON"""
+    try:
+        customer = Customer.objects.get(pk=pk)
+        return JsonResponse({
+            'id': customer.id,
+            'full_name': customer.full_name,
+            'first_name': customer.first_name,
+            'last_name': customer.last_name,
+            'phone': customer.phone,
+            'email': customer.email or '',
+            'province': customer.province,
+            'customer_type': customer.customer_type
+        })
+    except Customer.DoesNotExist:
+        return JsonResponse({'error': 'Customer not found'}, status=404)

@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ажилтаны тайлан - Ninjees tailor{% endblock %}
+{% block page_title %}Ажилтаны тайлан{% endblock %}
+{% block page_description %}Ажилтнуудын ажлын ачаалал хянах{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Ажилтаны тайлан</h1>
+                <p class="text-sm text-gray-600 mt-1">Ажилтнуудын ажлын ачаалал болон захиалгын статистик</p>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm">
+                    <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                    PDF татах
+                </button>
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center text-sm">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                    Excel татах
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Нийт ажилтан</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_employees }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Идэвхтэй захиалга</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_active_orders }}</p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Хоцорсон захиалга</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_overdue_orders }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Дууссан захиалга</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_completed_orders }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Employee Workload Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Ажилтнуудын ачаалал</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ажилтан
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Албан тушаал
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ачаалал
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Идэвхтэй
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Хоцорсон
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Дууссан
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Дэлгэрэнгүй
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for emp in employee_data %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-blue-600 font-semibold">{{ emp.employee.full_name|slice:":1" }}</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ emp.employee.full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ emp.employee.phone }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                {{ emp.employee.get_employee_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if emp.workload_status == 'low' %}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                                    {{ emp.workload_text }}
+                                </span>
+                            {% elif emp.workload_status == 'normal' %}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                    {{ emp.workload_text }}
+                                </span>
+                            {% elif emp.workload_status == 'high' %}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                    {{ emp.workload_text }}
+                                </span>
+                            {% elif emp.workload_status == 'critical' %}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                    {{ emp.workload_text }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-sm font-semibold text-gray-900">{{ emp.total_active }}</span>
+                            {% if emp.tailor_orders > 0 or emp.cutter_orders > 0 or emp.trouser_maker_orders > 0 %}
+                            <div class="text-xs text-gray-500 mt-1">
+                                {% if emp.tailor_orders > 0 %}<span class="mr-2">О:{{ emp.tailor_orders }}</span>{% endif %}
+                                {% if emp.cutter_orders > 0 %}<span class="mr-2">Э:{{ emp.cutter_orders }}</span>{% endif %}
+                                {% if emp.trouser_maker_orders > 0 %}<span>Ө:{{ emp.trouser_maker_orders }}</span>{% endif %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if emp.total_overdue > 0 %}
+                                <span class="text-sm font-semibold text-red-600">{{ emp.total_overdue }}</span>
+                            {% else %}
+                                <span class="text-sm font-semibold text-gray-500">0</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-sm font-semibold text-gray-900">{{ emp.total_completed }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <a href="{% url 'employees:employee_detail' emp.employee.pk %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Харах
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            Ажилтан олдсонгүй
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Legend -->
+    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div class="flex items-center space-x-6 text-sm">
+            <div class="flex items-center">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 mr-2">Хоосон</span>
+                <span class="text-gray-600">Хоосон (0 захиалга)</span>
+            </div>
+            <div class="flex items-center">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 mr-2">Хэвийн</span>
+                <span class="text-gray-600">Хэвийн (1-3 захиалга)</span>
+            </div>
+            <div class="flex items-center">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 mr-2">Өндөр</span>
+                <span class="text-gray-600">Өндөр (4-6 захиалга)</span>
+            </div>
+            <div class="flex items-center">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 mr-2">Маш өндөр</span>
+                <span class="text-gray-600">Маш өндөр (7+ захиалга)</span>
+            </div>
+        </div>
+        <div class="mt-2 text-xs text-gray-500">
+            <strong>Товчлол:</strong> О = Оёдолчин, Э = Эсгүүрчин, Ө = Өмдний оёдолчин
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}
+

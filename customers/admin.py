@@ -4,8 +4,8 @@ from .models import Customer
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'phone', 'customer_type', 'created_at']
-    list_filter = ['customer_type', 'created_at']
+    list_display = ['full_name', 'phone', 'province', 'customer_type', 'created_at']
+    list_filter = ['customer_type', 'province', 'created_at']
     search_fields = ['first_name', 'last_name', 'phone', 'email']
     ordering = ['-created_at']
     readonly_fields = ['created_at', 'updated_at']
@@ -15,7 +15,7 @@ class CustomerAdmin(admin.ModelAdmin):
             'fields': ('first_name', 'last_name', 'customer_type')
         }),
         ('Холбоо барих мэдээлэл', {
-            'fields': ('phone', 'email', 'address')
+            'fields': ('phone', 'email', 'province')
         }),
         ('Системийн мэдээлэл', {
             'fields': ('created_at', 'updated_at'),

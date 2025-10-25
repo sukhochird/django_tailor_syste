@@ -9,7 +9,7 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_filter = ['employee_type', 'is_active', 'has_login_access', 'created_at']
     search_fields = ['last_name', 'first_name', 'phone']
     ordering = ['last_name', 'first_name']
-    readonly_fields = ['created_at', 'updated_at', 'user', 'get_password']
+    readonly_fields = ['created_at', 'updated_at', 'get_password']
     actions = ['reset_passwords']
     
     fieldsets = (

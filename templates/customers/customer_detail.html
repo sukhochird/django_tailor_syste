@@ -75,6 +75,11 @@
                             <label class="block text-sm font-medium text-gray-500 mb-1">Имэйл</label>
                             <p class="text-gray-900">{{ customer.email|default:"-" }}</p>
                         </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Аймаг</label>
+                            <p class="text-gray-900">{{ customer.get_province_display }}</p>
+                        </div>
                     </div>
                 </div>
 

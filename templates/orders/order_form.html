@@ -29,40 +29,79 @@
                     <h3 class="text-lg font-semibold text-gray-900">Үйлчлүүлэгчийн мэдээлэл</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Үйлчлүүлэгч хайх <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex items-center space-x-2">
-                            <div class="flex-1 relative">
-                                <input type="tel" id="phoneSearch" placeholder="Утасны дугаараар хайх..." 
-                                       class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <div id="searchResults" class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"></div>
-                            </div>
-                            <button type="button" onclick="openCustomerModal()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center text-sm whitespace-nowrap transition-colors">
-                                <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
-                                Шинэ үйлчлүүлэгч
-                            </button>
-                        </div>
-                        <input type="hidden" id="id_customer" name="customer" value="">
-                        <div id="selectedCustomer" class="mt-2 hidden p-3 bg-blue-50 border border-blue-200 rounded-md">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900" id="customerName"></p>
-                                    <p class="text-xs text-gray-600" id="customerPhone"></p>
+                {% if form.instance.pk and form.instance.customer %}
+                    <!-- Read-only display when editing -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <div class="p-4 bg-gray-50 border border-gray-200 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
+                                            {{ form.instance.customer.full_name }}
+                                        </p>
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            <i data-lucide="phone" class="w-3 h-3 inline mr-1"></i>
+                                            {{ form.instance.customer.phone }}
+                                        </p>
+                                        {% if form.instance.customer.email %}
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            <i data-lucide="mail" class="w-3 h-3 inline mr-1"></i>
+                                            {{ form.instance.customer.email }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'customers:customer_detail' form.instance.customer.id %}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                                        <i data-lucide="external-link" class="w-4 h-4 mr-1"></i>
+                                        Дэлгэрэнгүй
+                                    </a>
                                 </div>
-                                <button type="button" onclick="clearCustomer()" class="text-red-600 hover:text-red-800">
-                                    <i data-lucide="x" class="w-4 h-4"></i>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500 italic">
+                                <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+                                Захиалга засах үед үйлчлүүлэгчийн мэдээлэл засварлах боломжгүй
+                            </p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="id_customer" name="customer" value="{{ form.instance.customer.id }}">
+                {% else %}
+                    <!-- Editable for new orders -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Үйлчлүүлэгч хайх <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex-1 relative">
+                                    <input type="tel" id="phoneSearch" placeholder="Утасны дугаараар хайх..." 
+                                           class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <div id="searchResults" class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"></div>
+                                </div>
+                                <button type="button" onclick="openCustomerModal()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center text-sm whitespace-nowrap transition-colors">
+                                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                                    Шинэ үйлчлүүлэгч
                                 </button>
                             </div>
+                            <input type="hidden" id="id_customer" name="customer" value="">
+                            <div id="selectedCustomer" class="mt-2 hidden p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900" id="customerName"></p>
+                                        <p class="text-xs text-gray-600" id="customerPhone"></p>
+                                    </div>
+                                    <button type="button" onclick="clearCustomer()" class="text-red-600 hover:text-red-800">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% if form.customer.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500">Утасны дугаараар хайж олох эсвэл шинээр бүртгэх</p>
                         </div>
-                        {% if form.customer.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
-                        {% endif %}
-                        <p class="mt-1 text-xs text-gray-500">Утасны дугаараар хайж олох эсвэл шинээр бүртгэх</p>
                     </div>
-                </div>
+                {% endif %}
             </div>
 
             <!-- Order Details -->
@@ -579,144 +618,146 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Phone search functionality
+    // Phone search functionality (only for new orders)
     const phoneSearch = document.getElementById('phoneSearch');
-    const searchResults = document.getElementById('searchResults');
-    const selectedCustomerDiv = document.getElementById('selectedCustomer');
-    const customerName = document.getElementById('customerName');
-    const customerPhone = document.getElementById('customerPhone');
-    const customerInput = document.getElementById('id_customer');
-    
-    let searchTimeout;
-    
-    phoneSearch.addEventListener('input', function() {
-        const phone = this.value.trim();
+    if (phoneSearch) {
+        const searchResults = document.getElementById('searchResults');
+        const selectedCustomerDiv = document.getElementById('selectedCustomer');
+        const customerName = document.getElementById('customerName');
+        const customerPhone = document.getElementById('customerPhone');
+        const customerInput = document.getElementById('id_customer');
         
-        clearTimeout(searchTimeout);
+        let searchTimeout;
         
-        if (phone.length < 3) {
-            searchResults.classList.add('hidden');
-            return;
+        phoneSearch.addEventListener('input', function() {
+            const phone = this.value.trim();
+            
+            clearTimeout(searchTimeout);
+            
+            if (phone.length < 3) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`/customers/search/?phone=${encodeURIComponent(phone)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.customers && data.customers.length > 0) {
+                            displaySearchResults(data.customers);
+                        } else {
+                            showNoResults(phone);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }, 300);
+        });
+        
+        function displaySearchResults(customers) {
+            searchResults.innerHTML = '';
+            searchResults.classList.remove('hidden');
+            
+            customers.forEach(customer => {
+                const div = document.createElement('div');
+                div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0';
+                div.innerHTML = `
+                    <p class="text-sm font-medium text-gray-900">${customer.full_name}</p>
+                    <p class="text-xs text-gray-600">${customer.phone}</p>
+                `;
+                div.addEventListener('click', () => selectCustomer(customer));
+                searchResults.appendChild(div);
+            });
         }
         
-        searchTimeout = setTimeout(() => {
-            fetch(`/customers/search/?phone=${encodeURIComponent(phone)}`)
+        function showNoResults(phone) {
+            searchResults.innerHTML = `
+                <div class="p-4 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Үйлчлүүлэгч олдсонгүй</p>
+                    <button onclick="createCustomerWithPhone('${phone}')" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        Шинээр бүртгэх
+                    </button>
+                </div>
+            `;
+            searchResults.classList.remove('hidden');
+        }
+        
+        function selectCustomer(customer) {
+            customerInput.value = customer.id;
+            customerName.textContent = customer.full_name;
+            customerPhone.textContent = customer.phone;
+            selectedCustomerDiv.classList.remove('hidden');
+            searchResults.classList.add('hidden');
+            phoneSearch.value = '';
+        }
+        
+        function clearCustomer() {
+            customerInput.value = '';
+            selectedCustomerDiv.classList.add('hidden');
+            phoneSearch.value = '';
+            phoneSearch.focus();
+        }
+        
+        function createCustomerWithPhone(phone) {
+            document.getElementById('phone').value = phone;
+            openCustomerModal();
+            searchResults.classList.add('hidden');
+        }
+        
+        // Close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!phoneSearch.contains(event.target) && !searchResults.contains(event.target)) {
+                searchResults.classList.add('hidden');
+            }
+        });
+        
+        // Handle customer form submission
+        const customerForm = document.getElementById('customerForm');
+        if (customerForm) {
+            customerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    last_name: document.getElementById('last_name').value,
+                    first_name: document.getElementById('first_name').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    customer_type: document.getElementById('customer_type').value,
+                    csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
+                };
+                
+                fetch('{% url "customers:customer_create" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': formData.csrfmiddlewaretoken
+                    },
+                    body: JSON.stringify(formData)
+                })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.customers && data.customers.length > 0) {
-                        displaySearchResults(data.customers);
+                    if (data.success) {
+                        // Select the newly created customer
+                        selectCustomer({
+                            id: data.customer_id,
+                            full_name: data.customer_name,
+                            phone: document.getElementById('phone').value
+                        });
+                        
+                        // Close modal and reset form
+                        closeCustomerModal();
+                        customerForm.reset();
                     } else {
-                        showNoResults(phone);
+                        alert('Алдаа гарлаа: ' + (data.error || 'Тодорхойгүй алдаа'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    alert('Алдаа гарлаа. Дахин оролдоно уу.');
                 });
-        }, 300);
-    });
-    
-    function displaySearchResults(customers) {
-        searchResults.innerHTML = '';
-        searchResults.classList.remove('hidden');
-        
-        customers.forEach(customer => {
-            const div = document.createElement('div');
-            div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0';
-            div.innerHTML = `
-                <p class="text-sm font-medium text-gray-900">${customer.full_name}</p>
-                <p class="text-xs text-gray-600">${customer.phone}</p>
-            `;
-            div.addEventListener('click', () => selectCustomer(customer));
-            searchResults.appendChild(div);
-        });
-    }
-    
-    function showNoResults(phone) {
-        searchResults.innerHTML = `
-            <div class="p-4 text-center">
-                <p class="text-sm text-gray-600 mb-2">Үйлчлүүлэгч олдсонгүй</p>
-                <button onclick="createCustomerWithPhone('${phone}')" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                    Шинээр бүртгэх
-                </button>
-            </div>
-        `;
-        searchResults.classList.remove('hidden');
-    }
-    
-    function selectCustomer(customer) {
-        customerInput.value = customer.id;
-        customerName.textContent = customer.full_name;
-        customerPhone.textContent = customer.phone;
-        selectedCustomerDiv.classList.remove('hidden');
-        searchResults.classList.add('hidden');
-        phoneSearch.value = '';
-    }
-    
-    function clearCustomer() {
-        customerInput.value = '';
-        selectedCustomerDiv.classList.add('hidden');
-        phoneSearch.value = '';
-        phoneSearch.focus();
-    }
-    
-    function createCustomerWithPhone(phone) {
-        document.getElementById('phone').value = phone;
-        openCustomerModal();
-        searchResults.classList.add('hidden');
-    }
-    
-    // Close search results when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!phoneSearch.contains(event.target) && !searchResults.contains(event.target)) {
-            searchResults.classList.add('hidden');
-        }
-    });
-    
-    // Handle customer form submission
-    const customerForm = document.getElementById('customerForm');
-    if (customerForm) {
-        customerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                last_name: document.getElementById('last_name').value,
-                first_name: document.getElementById('first_name').value,
-                phone: document.getElementById('phone').value,
-                email: document.getElementById('email').value,
-                customer_type: document.getElementById('customer_type').value,
-                csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
-            };
-            
-            fetch('{% url "customers:customer_create" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': formData.csrfmiddlewaretoken
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Select the newly created customer
-                    selectCustomer({
-                        id: data.customer_id,
-                        full_name: data.customer_name,
-                        phone: document.getElementById('phone').value
-                    });
-                    
-                    // Close modal and reset form
-                    closeCustomerModal();
-                    customerForm.reset();
-                } else {
-                    alert('Алдаа гарлаа: ' + (data.error || 'Тодорхойгүй алдаа'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
             });
-        });
+        }
     }
 });
 
