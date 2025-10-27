@@ -51,8 +51,8 @@ class OrderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Allow selecting from all active employees, ordered alphabetically
-        all_employees = Employee.objects.filter(is_active=True).order_by('first_name')
+        # Allow selecting from all active employees except managers, ordered by employee type then name
+        all_employees = Employee.objects.filter(is_active=True).exclude(employee_type='manager').order_by('employee_type', 'first_name')
         
         # Set queryset and custom label for each employee field
         self.fields['assigned_cutter'].queryset = all_employees
