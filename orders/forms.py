@@ -6,6 +6,26 @@ from employees.models import Employee
 
 
 class OrderForm(forms.ModelForm):
+    # Custom employee choice fields with custom labels (only name and position, no last name)
+    assigned_cutter = forms.ModelChoiceField(
+        queryset=Employee.objects.none(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Эсгүүрчин"
+    )
+    assigned_tailor = forms.ModelChoiceField(
+        queryset=Employee.objects.none(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Оёдолчин"
+    )
+    assigned_trouser_maker = forms.ModelChoiceField(
+        queryset=Employee.objects.none(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Өмдний оёдолчин"
+    )
+    
     class Meta:
         model = Order
         fields = [
@@ -18,9 +38,6 @@ class OrderForm(forms.ModelForm):
             'customer': forms.Select(attrs={'class': 'form-control'}),
             'item_type': forms.Select(attrs={'class': 'form-control'}),
             'material_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Материалын код'}),
-            'assigned_tailor': forms.Select(attrs={'class': 'form-control'}),
-            'assigned_cutter': forms.Select(attrs={'class': 'form-control'}),
-            'assigned_trouser_maker': forms.Select(attrs={'class': 'form-control'}),
             'total_amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -35,11 +52,17 @@ class OrderForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         # Allow selecting from all active employees, ordered alphabetically
-        all_employees = Employee.objects.filter(is_active=True).order_by('last_name', 'first_name')
+        all_employees = Employee.objects.filter(is_active=True).order_by('first_name')
         
+        # Set queryset and custom label for each employee field
         self.fields['assigned_cutter'].queryset = all_employees
+        self.fields['assigned_cutter'].label_from_instance = lambda obj: f"{obj.first_name} ({obj.get_employee_type_display()})"
+        
         self.fields['assigned_tailor'].queryset = all_employees
+        self.fields['assigned_tailor'].label_from_instance = lambda obj: f"{obj.first_name} ({obj.get_employee_type_display()})"
+        
         self.fields['assigned_trouser_maker'].queryset = all_employees
+        self.fields['assigned_trouser_maker'].label_from_instance = lambda obj: f"{obj.first_name} ({obj.get_employee_type_display()})"
         
         # Set default dates
         from datetime import date, timedelta

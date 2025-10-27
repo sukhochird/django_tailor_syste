@@ -17,7 +17,7 @@ class Employee(models.Model):
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Хэрэглэгч")
-    last_name = models.CharField(max_length=100, verbose_name="Овог", default='')
+    last_name = models.CharField(max_length=100, blank=True, null=True, verbose_name="Овог")
     first_name = models.CharField(max_length=100, verbose_name="Нэр", default='')
     phone = models.CharField(max_length=20, verbose_name="Утасны дугаар", default='')
     employee_type = models.CharField(
@@ -37,11 +37,15 @@ class Employee(models.Model):
         ordering = ['last_name', 'first_name']
     
     def __str__(self):
-        return f"{self.last_name} {self.first_name} ({self.get_employee_type_display()})"
+        if self.last_name:
+            return f"{self.last_name} {self.first_name} ({self.get_employee_type_display()})"
+        return f"{self.first_name} ({self.get_employee_type_display()})"
     
     @property
     def full_name(self):
-        return f"{self.last_name} {self.first_name}"
+        if self.last_name:
+            return f"{self.last_name} {self.first_name}"
+        return self.first_name
     
     def generate_password(self, length=8):
         """Generate a random secure password"""
