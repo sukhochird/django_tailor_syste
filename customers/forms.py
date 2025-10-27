@@ -11,7 +11,7 @@ class CustomerForm(forms.ModelForm):
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Жишээ: Болд'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Жишээ: Батбаяр'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Жишээ: Батбаяр'}),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Жишээ: 99112233'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Жишээ: bold@email.com'}),
             'province': forms.Select(attrs={'class': 'form-control'}),
@@ -19,7 +19,7 @@ class CustomerForm(forms.ModelForm):
         }
         labels = {
             'first_name': 'Нэр *',
-            'last_name': 'Овог *',
+            'last_name': 'Овог',
             'phone': 'Утасны дугаар *',
             'email': 'Имэйл',
             'province': 'Аймаг',
@@ -27,7 +27,7 @@ class CustomerForm(forms.ModelForm):
         }
         help_texts = {
             'first_name': 'Үйлчлүүлэгчийн нэрийг оруулна уу',
-            'last_name': 'Үйлчлүүлэгчийн овгийг оруулна уу',
+            'last_name': 'Үйлчлүүлэгчийн овгийг оруулна уу (сонголттой)',
             'phone': '8 оронтой утасны дугаар оруулна уу (жишээ: 99112233)',
             'email': 'Имэйл сонголттой бөгөөд шаардлагагүй',
             'province': 'Аймгийг сонгоно уу',

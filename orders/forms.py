@@ -34,18 +34,12 @@ class OrderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Filter employees by type and order alphabetically
-        self.fields['assigned_cutter'].queryset = Employee.objects.filter(
-            employee_type__in=['cutter', 'shirt_cutter'], is_active=True
-        ).order_by('last_name', 'first_name')
+        # Allow selecting from all active employees, ordered alphabetically
+        all_employees = Employee.objects.filter(is_active=True).order_by('last_name', 'first_name')
         
-        self.fields['assigned_tailor'].queryset = Employee.objects.filter(
-            employee_type__in=['shirt_sewer', 'jacket_sewer'], is_active=True
-        ).order_by('last_name', 'first_name')
-        
-        self.fields['assigned_trouser_maker'].queryset = Employee.objects.filter(
-            employee_type='trouser_sewer', is_active=True
-        ).order_by('last_name', 'first_name')
+        self.fields['assigned_cutter'].queryset = all_employees
+        self.fields['assigned_tailor'].queryset = all_employees
+        self.fields['assigned_trouser_maker'].queryset = all_employees
         
         # Set default dates
         from datetime import date, timedelta

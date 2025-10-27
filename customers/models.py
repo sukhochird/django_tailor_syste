@@ -34,7 +34,7 @@ class Customer(models.Model):
     ]
     
     first_name = models.CharField(max_length=100, verbose_name="Нэр")
-    last_name = models.CharField(max_length=100, verbose_name="Овог")
+    last_name = models.CharField(max_length=100, blank=True, null=True, verbose_name="Овог")
     phone = models.CharField(max_length=20, verbose_name="Утасны дугаар")
     email = models.EmailField(blank=True, null=True, verbose_name="Имэйл")
     province = models.CharField(
@@ -58,8 +58,12 @@ class Customer(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.last_name} {self.first_name}"
+        if self.last_name:
+            return f"{self.last_name} {self.first_name}"
+        return self.first_name
     
     @property
     def full_name(self):
-        return f"{self.last_name} {self.first_name}"
+        if self.last_name:
+            return f"{self.last_name} {self.first_name}"
+        return self.first_name
