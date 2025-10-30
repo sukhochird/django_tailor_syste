@@ -38,7 +38,7 @@ class OrderForm(forms.ModelForm):
             'customer': forms.Select(attrs={'class': 'form-control'}),
             'item_type': forms.Select(attrs={'class': 'form-control'}),
             'material_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Материалын код'}),
-            'total_amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'total_amount': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Жишээ: 1,800,000'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
@@ -86,6 +86,20 @@ class OrderForm(forms.ModelForm):
                 self.fields['total_amount'].initial = float(default_amount)
             except ValueError:
                 self.fields['total_amount'].initial = 100000
+    
+    def clean_total_amount(self):
+        """Clean and validate total_amount field - remove commas and convert to decimal"""
+        value = self.cleaned_data.get('total_amount')
+        if value:
+            # Remove commas from the formatted number
+            if isinstance(value, str):
+                value = value.replace(',', '')
+            try:
+                # Convert to float to validate it's a number
+                return float(value)
+            except (ValueError, TypeError):
+                raise forms.ValidationError('Зөвхөн тоо оруулна уу')
+        return value
 
 
 class ProcessStepForm(forms.ModelForm):

@@ -28,6 +28,93 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Fullscreen toggle
+    const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+    if (fullscreenToggle) {
+        // Check if fullscreen is supported
+        const isFullscreenSupported = document.fullscreenEnabled ||
+            document.webkitFullscreenEnabled ||
+            document.mozFullScreenEnabled ||
+            document.msFullscreenEnabled;
+
+        if (!isFullscreenSupported) {
+            fullscreenToggle.style.display = 'none';
+        } else {
+            fullscreenToggle.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const isFullscreen = document.fullscreenElement ||
+                    document.webkitFullscreenElement ||
+                    document.mozFullScreenElement ||
+                    document.msFullscreenElement;
+
+                console.log('Fullscreen toggle clicked. Current state:', isFullscreen ? 'fullscreen' : 'normal');
+
+                if (!isFullscreen) {
+                    // Enter fullscreen mode
+                    console.log('Entering fullscreen...');
+                    const elem = document.documentElement;
+
+                    const enterFullscreen = elem.requestFullscreen ||
+                        elem.webkitRequestFullscreen ||
+                        elem.mozRequestFullScreen ||
+                        elem.msRequestFullscreen;
+
+                    if (enterFullscreen) {
+                        enterFullscreen.call(elem).then(() => {
+                            console.log('Successfully entered fullscreen');
+                        }).catch(err => {
+                            console.error('Error entering fullscreen:', err);
+                        });
+                    }
+                } else {
+                    // Exit fullscreen mode
+                    console.log('Exiting fullscreen...');
+
+                    const exitFullscreen = document.exitFullscreen ||
+                        document.webkitExitFullscreen ||
+                        document.mozCancelFullScreen ||
+                        document.msExitFullscreen;
+
+                    if (exitFullscreen) {
+                        exitFullscreen.call(document).then(() => {
+                            console.log('Successfully exited fullscreen');
+                        }).catch(err => {
+                            console.error('Error exiting fullscreen:', err);
+                        });
+                    }
+                }
+            });
+
+            // Listen for fullscreen changes (e.g., ESC key)
+            const fullscreenEvents = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'];
+
+            fullscreenEvents.forEach(event => {
+                document.addEventListener(event, function () {
+                    const icon = fullscreenToggle.querySelector('i');
+                    const isFullscreen = document.fullscreenElement ||
+                        document.webkitFullscreenElement ||
+                        document.mozFullScreenElement ||
+                        document.msFullscreenElement;
+
+                    console.log('Fullscreen state changed:', isFullscreen ? 'FULLSCREEN' : 'NORMAL');
+
+                    if (isFullscreen) {
+                        console.log('Changing icon to minimize');
+                        icon.setAttribute('data-lucide', 'minimize');
+                        fullscreenToggle.setAttribute('title', 'Fullscreen-ээс гарах');
+                    } else {
+                        console.log('Changing icon to maximize');
+                        icon.setAttribute('data-lucide', 'maximize');
+                        fullscreenToggle.setAttribute('title', 'Fullscreen');
+                    }
+                    lucide.createIcons();
+                });
+            });
+        }
+    }
+
     // Dark mode toggle
     const darkModeToggle = document.getElementById('darkModeToggle');
 

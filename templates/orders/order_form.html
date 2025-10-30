@@ -625,6 +625,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Format total amount input with commas
+    const totalAmountInput = document.getElementById('id_total_amount');
+    if (totalAmountInput) {
+        // Format number with commas
+        function formatNumber(value) {
+            // Remove all non-digit characters
+            const number = value.replace(/\D/g, '');
+            // Add commas
+            return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+        
+        // Remove formatting to get raw number
+        function unformatNumber(value) {
+            return value.replace(/,/g, '');
+        }
+        
+        // Format on input
+        totalAmountInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldValue = e.target.value;
+            const oldLength = oldValue.length;
+            
+            // Format the value
+            const formattedValue = formatNumber(oldValue);
+            e.target.value = formattedValue;
+            
+            // Adjust cursor position after formatting
+            const newLength = formattedValue.length;
+            const lengthDiff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
+        });
+        
+        // Format initial value if exists
+        if (totalAmountInput.value) {
+            totalAmountInput.value = formatNumber(totalAmountInput.value);
+        }
+        
+        // Remove formatting before form submission
+        const orderForm = document.getElementById('orderForm');
+        if (orderForm) {
+            orderForm.addEventListener('submit', function(e) {
+                if (totalAmountInput.value) {
+                    totalAmountInput.value = unformatNumber(totalAmountInput.value);
+                }
+            });
+        }
+    }
+    
     // Phone search functionality (only for new orders)
     const phoneSearch = document.getElementById('phoneSearch');
     if (phoneSearch) {
