@@ -13,12 +13,12 @@
                     <span class="sidebar-text">Хяналтын самбар</span>
                 </a>
                 
-                <a href="{% url 'orders:order_list' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name == 'order_list' %}active{% endif %}">
+                <a href="{% url 'orders:order_list' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name != 'active_orders' %}active{% endif %}">
                     <i data-lucide="file-text" class="sidebar-icon"></i>
                     <span class="sidebar-text">Захиалга</span>
                 </a>
                 
-                <a href="{% url 'orders:active_orders' %}" class="sidebar-item {% if request.resolver_match.url_name == 'active_orders' %}active{% endif %}">
+                <a href="{% url 'orders:active_orders' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name == 'active_orders' %}active{% endif %}">
                     <i data-lucide="clock" class="sidebar-icon"></i>
                     <span class="sidebar-text">Идэвхтэй захиалга</span>
                 </a>
@@ -54,12 +54,12 @@
                 </a>
             {% else %}
                 <!-- Staff - Limited Menus -->
-                <a href="{% url 'orders:order_list' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name == 'order_list' %}active{% endif %}">
+                <a href="{% url 'orders:order_list' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name != 'active_orders' %}active{% endif %}">
                     <i data-lucide="file-text" class="sidebar-icon"></i>
                     <span class="sidebar-text">Захиалга</span>
                 </a>
                 
-                <a href="{% url 'orders:active_orders' %}" class="sidebar-item {% if request.resolver_match.url_name == 'active_orders' %}active{% endif %}">
+                <a href="{% url 'orders:active_orders' %}" class="sidebar-item {% if 'orders' in request.resolver_match.namespace and request.resolver_match.url_name == 'active_orders' %}active{% endif %}">
                     <i data-lucide="clock" class="sidebar-icon"></i>
                     <span class="sidebar-text">Идэвхтэй захиалга</span>
                 </a>
