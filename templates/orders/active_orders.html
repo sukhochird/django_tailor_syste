@@ -98,7 +98,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-xs text-gray-500">Үнэ</p>
-                            <p class="text-base font-bold text-gray-900">{{ order.total_amount|format_currency }}</p>
+                            <p class="text-base font-bold text-gray-900">{% show_currency order.total_amount %}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-500">Дуусах</p>

@@ -118,7 +118,7 @@
                                     </div>
                                     <div class="text-sm text-gray-600 mb-1">{{ order.item_type }}</div>
                                     <div class="flex items-center justify-between">
-                                        <span class="text-sm font-medium text-gray-900">{{ order.total_amount|format_currency }}</span>
+                                        <span class="text-sm font-medium text-gray-900">{% show_currency order.total_amount %}</span>
                                         <span class="text-xs text-gray-500">Дуусах: {{ order.due_date }}</span>
                                     </div>
                                 </a>

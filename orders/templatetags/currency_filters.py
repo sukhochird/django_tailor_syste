@@ -23,6 +23,33 @@ def format_currency(value):
     except (ValueError, TypeError):
         return "0₮"
 
+@register.simple_tag(takes_context=True)
+def show_currency(context, value):
+    """
+    Format currency value only if user is superuser
+    Example: 65000.00 -> 65,000₮ (for superusers) or "***" (for non-superusers)
+    """
+    user = context.get('user')
+    
+    # If user is not superuser, hide the amount
+    if not user or not user.is_superuser:
+        return "***"
+    
+    if value is None:
+        return "0₮"
+    
+    try:
+        # Convert to float first to handle Decimal fields
+        float_value = float(value)
+        
+        # Format with comma separators and no decimal places
+        formatted = f"{float_value:,.0f}"
+        
+        # Add currency symbol
+        return f"{formatted}₮"
+    except (ValueError, TypeError):
+        return "0₮"
+
 @register.filter
 def format_number(value):
     """

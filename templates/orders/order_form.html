@@ -157,6 +157,7 @@
                         <p class="mt-1 text-xs text-gray-500">Анхдагч: Системийн тохиргооноос (14 хоног)</p>
                     </div>
                     
+                    {% if user.is_superuser %}
                     <div>
                         <label for="{{ form.total_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                             Нийт дүн (₮) <span class="text-red-500">*</span>
@@ -167,6 +168,12 @@
                         {% endif %}
                         <p class="mt-1 text-xs text-gray-500">Анхдагч: Системийн тохиргооноос, засах боломжтой</p>
                     </div>
+                    {% else %}
+                    {# Hidden field for non-superusers - will use default value #}
+                    <div style="display: none;">
+                        {{ form.total_amount }}
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="mt-6">

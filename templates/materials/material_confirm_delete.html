@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load currency_filters %}
 
 {% block title %}{{ material.name }} устгах - Ninjees tailor{% endblock %}
 {% block page_title %}Материал устгах{% endblock %}
@@ -48,7 +49,7 @@
                         </div>
                         <div>
                             <span class="text-gray-500">Үнэ:</span>
-                            <span class="font-medium">{{ material.unit_price }}₮</span>
+                            <span class="font-medium">{% show_currency material.unit_price %}</span>
                         </div>
                         <div>
                             <span class="text-gray-500">Үлдэгдэл:</span>
@@ -56,7 +57,7 @@
                         </div>
                         <div>
                             <span class="text-gray-500">Нийт үнэ:</span>
-                            <span class="font-medium">{{ material.total_value }}₮</span>
+                            <span class="font-medium">{% show_currency material.total_value %}</span>
                         </div>
                     </div>
                 </div>

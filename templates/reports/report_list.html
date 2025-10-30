@@ -95,7 +95,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Нийт орлого</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ total_revenue|format_currency }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{% show_currency total_revenue %}</p>
                     {% if revenue_change_percent > 0 %}
                     <p class="text-xs text-green-600">+{{ revenue_change_percent|floatformat:0 }}% өмнөх сараас</p>
                     {% elif revenue_change_percent < 0 %}
@@ -157,7 +157,7 @@
                             <i data-lucide="trending-up" class="w-5 h-5 text-green-600 mr-3"></i>
                             <div>
                                 <p class="font-medium text-gray-900">Орлого</p>
-                                <p class="text-sm text-gray-600">{{ total_revenue|format_currency }}</p>
+                                <p class="text-sm text-gray-600">{% show_currency total_revenue %}</p>
                             </div>
                         </div>
                         {% if revenue_change_percent > 0 %}
@@ -363,7 +363,7 @@
                                 <span class="font-medium">{{ stat.orders }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                <span class="font-medium text-green-600">{{ stat.revenue|format_currency }}</span>
+                                <span class="font-medium text-green-600">{% show_currency stat.revenue %}</span>
                             </td>
                         </tr>
                         {% endfor %}

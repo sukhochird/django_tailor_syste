@@ -45,7 +45,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="text-sm font-medium text-gray-500">Нэгжийн үнэ</label>
-                            <p class="text-lg font-semibold text-gray-900">{{ material.unit_price|format_currency }}</p>
+                            <p class="text-lg font-semibold text-gray-900">{% show_currency material.unit_price %}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Хэмжих нэгж</label>
@@ -63,7 +63,7 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Нийт үнэ</label>
-                            <p class="text-lg font-semibold text-gray-900">{{ material.total_value|format_currency }}</p>
+                            <p class="text-lg font-semibold text-gray-900">{% show_currency material.total_value %}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Статус</label>

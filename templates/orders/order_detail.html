@@ -52,7 +52,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Нийт дүн</label>
-                            <p class="text-lg font-semibold text-gray-900">{{ order.total_amount|format_currency }}</p>
+                            <p class="text-lg font-semibold text-gray-900">{% show_currency order.total_amount %}</p>
                         </div>
                         
                         <div>
@@ -290,7 +290,7 @@
                                 <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900">Эсгүүрчин</p>
+                                <p class="text-sm font-medium text-gray-900">Оёдолчин</p>
                                 <p class="text-sm text-gray-600">{{ order.assigned_tailor.full_name }}</p>
                                 {% if order.assigned_tailor.phone %}
                                     <p class="text-xs text-gray-500">{{ order.assigned_tailor.phone }}</p>
@@ -305,7 +305,7 @@
                                 <i data-lucide="scissors" class="w-5 h-5 text-green-600"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900">Оёдолчин</p>
+                                <p class="text-sm font-medium text-gray-900">Эсгүүрчин</p>
                                 <p class="text-sm text-gray-600">{{ order.assigned_cutter.full_name }}</p>
                                 {% if order.assigned_cutter.phone %}
                                     <p class="text-xs text-gray-500">{{ order.assigned_cutter.phone }}</p>
