@@ -165,13 +165,17 @@
                     <!-- Recent Orders -->
                     {% if recent_orders %}
                     <div>
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Сүүлийн захиалгууд</h4>
-                        <div class="space-y-2">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-semibold text-gray-700">Сүүлийн 20 захиалга</h4>
+                            <span class="text-xs text-gray-500">{{ recent_orders|length }} захиалга</span>
+                        </div>
+                        <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
                             {% for order in recent_orders %}
-                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                            <a href="{% url 'orders:order_detail' order.pk %}" class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 transition-colors block">
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-gray-900">{{ order.order_number }}</p>
                                     <p class="text-xs text-gray-500">{{ order.customer.full_name }}</p>
+                                    <p class="text-xs text-gray-400">{{ order.created_at|date:"Y-m-d" }}</p>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     {% if order.current_status == 'seamstress_finished' %}
@@ -179,13 +183,16 @@
                                     {% else %}
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Хийгдэж байна</span>
                                     {% endif %}
-                                    <a href="{% url 'orders:order_detail' order.pk %}" class="text-blue-600 hover:text-blue-800">
-                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                    </a>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 text-blue-600"></i>
                                 </div>
-                            </div>
+                            </a>
                             {% endfor %}
                         </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <i data-lucide="inbox" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-gray-500">Захиалга байхгүй</p>
                     </div>
                     {% endif %}
                 </div>
@@ -253,4 +260,5 @@
     </div>
 </div>
 {% endblock %}
+
 

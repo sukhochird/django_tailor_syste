@@ -102,8 +102,8 @@ class EmployeeDetailView(SuperuserRequiredMixin, DetailView):
         context['average_rating'] = ratings.aggregate(Avg('rating'))['rating__avg']
         context['total_ratings'] = ratings.count()
         
-        # Recent orders
-        context['recent_orders'] = assigned_orders.order_by('-created_at')[:5]
+        # Recent orders - show last 20
+        context['recent_orders'] = assigned_orders.order_by('-created_at')[:20]
         
         return context
 
