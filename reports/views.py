@@ -52,8 +52,8 @@ class ReportListView(SuperuserRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get filter parameter
-        period_filter = self.request.GET.get('period', 'this_month')
+        # Get filter parameter - default to all time to ensure data visibility
+        period_filter = self.request.GET.get('period', 'all_time')
         
         # Get real statistics from database
         today = timezone.now().date()
@@ -113,19 +113,17 @@ class ReportListView(SuperuserRequiredMixin, ListView):
         
         # Build base querysets with date filters
         current_period_orders = Order.objects.all()
-        previous_period_orders = Order.objects.all()
+        previous_period_orders = Order.objects.none()
         
         if start_date:
             # Use date lookup instead of datetime
             current_period_orders = current_period_orders.filter(created_at__date__gte=start_date)
             
             if prev_start_date:
-                previous_period_orders = previous_period_orders.filter(
+                previous_period_orders = Order.objects.filter(
                     created_at__date__gte=prev_start_date,
                     created_at__date__lt=start_date
                 )
-            else:
-                previous_period_orders = previous_period_orders.none()
         
         if end_date:
             current_period_orders = current_period_orders.filter(created_at__date__lte=end_date)
