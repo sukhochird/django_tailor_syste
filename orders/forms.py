@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django import forms
 from django.contrib.auth.models import User
 from .models import Order, ProcessStep, EmployeeRating
@@ -31,7 +33,7 @@ class OrderForm(forms.ModelForm):
         fields = [
             'customer', 'item_type', 'material_code',
             'assigned_tailor', 'assigned_cutter', 'assigned_trouser_maker',
-            'total_amount', 'start_date', 'due_date', 'notes',
+            'total_amount', 'advance_amount', 'start_date', 'due_date', 'notes',
             'design_front', 'design_back', 'design_side', 'design_reference'
         ]
         widgets = {
@@ -39,6 +41,7 @@ class OrderForm(forms.ModelForm):
             'item_type': forms.Select(attrs={'class': 'form-control'}),
             'material_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Материалын код'}),
             'total_amount': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Жишээ: 1,800,000'}),
+            'advance_amount': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Жишээ: 500,000'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
@@ -86,6 +89,8 @@ class OrderForm(forms.ModelForm):
                 self.fields['total_amount'].initial = float(default_amount)
             except ValueError:
                 self.fields['total_amount'].initial = 100000
+            
+            self.fields['advance_amount'].initial = 0
     
     def clean_total_amount(self):
         """Clean and validate total_amount field - remove commas and convert to decimal"""
@@ -95,11 +100,36 @@ class OrderForm(forms.ModelForm):
             if isinstance(value, str):
                 value = value.replace(',', '')
             try:
-                # Convert to float to validate it's a number
-                return float(value)
-            except (ValueError, TypeError):
+                # Convert to Decimal to validate it's a number
+                return Decimal(value)
+            except (InvalidOperation, ValueError, TypeError):
                 raise forms.ValidationError('Зөвхөн тоо оруулна уу')
         return value
+    
+    def clean_advance_amount(self):
+        """Clean and validate advance_amount field - remove commas and convert to decimal"""
+        value = self.cleaned_data.get('advance_amount')
+        if value is not None:
+            if isinstance(value, str):
+                value = value.replace(',', '')
+            try:
+                return Decimal(value)
+            except (InvalidOperation, ValueError, TypeError):
+                raise forms.ValidationError('Зөвхөн тоо оруулна уу')
+        return Decimal('0')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        total = cleaned_data.get('total_amount') or Decimal('0')
+        advance = cleaned_data.get('advance_amount') or Decimal('0')
+
+        if advance < Decimal('0'):
+            self.add_error('advance_amount', 'Урьдчилгаа дүн 0-ээс бага байж болохгүй.')
+
+        if advance > total and advance != Decimal('0'):
+            self.add_error('advance_amount', 'Урьдчилгаа дүн нийт дүнгээс их байж болохгүй.')
+
+        return cleaned_data
 
 
 class ProcessStepForm(forms.ModelForm):

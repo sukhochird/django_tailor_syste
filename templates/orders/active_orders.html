@@ -99,6 +99,14 @@
                         <div>
                             <p class="text-xs text-gray-500">Үнэ</p>
                             <p class="text-base font-bold text-gray-900">{% show_currency order.total_amount %}</p>
+                            <p class="text-xs text-gray-600 mt-1">Урьдчилгаа: {% show_currency order.advance_amount %}</p>
+                            <p class="text-xs mt-1">
+                                {% if order.remaining_amount == 0 %}
+                                    <span class="text-green-700 font-medium">Бүрэн төлсөн</span>
+                                {% else %}
+                                    <span class="text-red-600 font-medium">{% show_currency order.remaining_amount %}</span>
+                                {% endif %}
+                            </p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-500">Дуусах</p>

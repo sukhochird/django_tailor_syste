@@ -168,10 +168,30 @@
                         {% endif %}
                         <p class="mt-1 text-xs text-gray-500">Анхдагч: Системийн тохиргооноос, засах боломжтой</p>
                     </div>
+                    <div>
+                        <label for="{{ form.advance_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Урьдчилгаа дүн (₮)
+                        </label>
+                        {{ form.advance_amount }}
+                        {% if form.advance_amount.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.advance_amount.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Урьдчилгаа оруулсан тохиолдолд үлдэгдэл автоматаар тооцогдоно</p>
+                    </div>
+                    <div class="md:col-span-2" id="remainingPaymentContainer">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Үлдэгдэл төлбөр
+                        </label>
+                        <div id="remainingPaymentDisplay" class="px-4 py-3 rounded-md border border-gray-200 bg-gray-50 text-sm font-medium text-gray-700">
+                            Бүрэн төлсөн
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Урьдчилгаа 0 бол захиалга бүрэн төлөгдсөн гэж тооцно</p>
+                    </div>
                     {% else %}
-                    {# Hidden field for non-superusers - will use default value #}
+                    {# Hidden fields for non-superusers - will use default values #}
                     <div style="display: none;">
                         {{ form.total_amount }}
+                        {{ form.advance_amount }}
                     </div>
                     {% endif %}
                 </div>
@@ -625,52 +645,115 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Format total amount input with commas
-    const totalAmountInput = document.getElementById('id_total_amount');
-    if (totalAmountInput) {
-        // Format number with commas
-        function formatNumber(value) {
-            // Remove all non-digit characters
-            const number = value.replace(/\D/g, '');
-            // Add commas
-            return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    // Format currency inputs with commas and calculate remaining payment
+    const currencyInputs = [
+        document.getElementById('id_total_amount'),
+        document.getElementById('id_advance_amount')
+    ].filter(Boolean);
+
+    const remainingPaymentDisplay = document.getElementById('remainingPaymentDisplay');
+
+    function formatNumber(value) {
+        const number = value.replace(/[^\d.]/g, '');
+        const parts = number.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+    }
+
+    function unformatNumber(value) {
+        return value.replace(/,/g, '');
+    }
+
+    function parseCurrency(value) {
+        if (!value) {
+            return 0;
         }
-        
-        // Remove formatting to get raw number
-        function unformatNumber(value) {
-            return value.replace(/,/g, '');
+        const normalized = unformatNumber(value);
+        const number = parseFloat(normalized);
+        if (Number.isNaN(number)) {
+            return 0;
         }
-        
-        // Format on input
-        totalAmountInput.addEventListener('input', function(e) {
+        return number;
+    }
+
+    function formatCurrencyOutput(value) {
+        return value.toLocaleString('mn-MN', { minimumFractionDigits: 0 });
+    }
+
+    function updateRemainingPayment() {
+        if (!remainingPaymentDisplay) {
+            return;
+        }
+
+        const totalInput = document.getElementById('id_total_amount');
+        const advanceInput = document.getElementById('id_advance_amount');
+
+        const total = totalInput ? parseCurrency(totalInput.value) : 0;
+        const advance = advanceInput ? parseCurrency(advanceInput.value) : 0;
+
+        if (!advance || advance === 0) {
+            remainingPaymentDisplay.textContent = 'Бүрэн төлсөн';
+            remainingPaymentDisplay.classList.remove('text-red-600', 'bg-red-50', 'border-red-200');
+            remainingPaymentDisplay.classList.remove('text-green-700', 'bg-green-50', 'border-green-200');
+            remainingPaymentDisplay.classList.add('text-gray-700', 'bg-gray-50', 'border-gray-200');
+            return;
+        }
+
+        let remaining = total - advance;
+        if (remaining < 0) {
+            remaining = 0;
+        }
+
+        if (remaining === 0) {
+            remainingPaymentDisplay.textContent = 'Үлдэгдэл төлбөр 0₮ - Бүрэн төлсөн';
+            remainingPaymentDisplay.classList.remove('text-red-600', 'bg-red-50', 'border-red-200');
+            remainingPaymentDisplay.classList.remove('text-gray-700', 'bg-gray-50', 'border-gray-200');
+            remainingPaymentDisplay.classList.add('text-green-700', 'bg-green-50', 'border-green-200');
+        } else {
+            remainingPaymentDisplay.textContent = `Үлдэгдэл төлбөр ${formatCurrencyOutput(remaining)}₮`;
+            remainingPaymentDisplay.classList.remove('text-gray-700', 'bg-gray-50', 'border-gray-200');
+            remainingPaymentDisplay.classList.remove('text-green-700', 'bg-green-50', 'border-green-200');
+            remainingPaymentDisplay.classList.add('text-red-600', 'bg-red-50', 'border-red-200');
+        }
+    }
+
+    currencyInputs.forEach((input) => {
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
             const oldValue = e.target.value;
             const oldLength = oldValue.length;
-            
-            // Format the value
+
             const formattedValue = formatNumber(oldValue);
             e.target.value = formattedValue;
-            
-            // Adjust cursor position after formatting
+
             const newLength = formattedValue.length;
             const lengthDiff = newLength - oldLength;
-            e.target.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
+            const newCursorPosition = Math.max(0, cursorPosition + lengthDiff);
+            e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+
+            updateRemainingPayment();
         });
-        
-        // Format initial value if exists
-        if (totalAmountInput.value) {
-            totalAmountInput.value = formatNumber(totalAmountInput.value);
+
+        if (input.value) {
+            input.value = formatNumber(input.value);
         }
-        
-        // Remove formatting before form submission
-        const orderForm = document.getElementById('orderForm');
-        if (orderForm) {
-            orderForm.addEventListener('submit', function(e) {
-                if (totalAmountInput.value) {
-                    totalAmountInput.value = unformatNumber(totalAmountInput.value);
+    });
+
+    updateRemainingPayment();
+
+    const orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function() {
+            currencyInputs.forEach((input) => {
+                if (input && input.value) {
+                    input.value = unformatNumber(input.value);
                 }
             });
-        }
+        });
     }
     
     // Phone search functionality (only for new orders)

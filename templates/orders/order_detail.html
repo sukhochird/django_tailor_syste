@@ -56,6 +56,22 @@
                         </div>
                         
                         <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Урьдчилгаа дүн</label>
+                            <p class="text-lg font-semibold text-gray-900">{% show_currency order.advance_amount %}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Үлдэгдэл төлбөр</label>
+                            <p class="text-lg font-semibold">
+                                {% if order.remaining_amount == 0 %}
+                                    <span class="text-green-600">Бүрэн төлсөн</span>
+                                {% else %}
+                                    <span class="text-red-600">{% show_currency order.remaining_amount %}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Эхлэх огноо</label>
                             <p class="text-gray-900">{{ order.start_date|date:"Y.m.d" }}</p>
                         </div>

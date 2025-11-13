@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.core.validators import MinValueValidator
 from customers.models import Customer
@@ -76,6 +78,13 @@ class Order(models.Model):
         validators=[MinValueValidator(0)],
         verbose_name="Нийт дүн"
     )
+    advance_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        default=0,
+        verbose_name="Урьдчилгаа дүн"
+    )
     
     # Огнооны мэдээлэл
     start_date = models.DateField(verbose_name="Эхлэх огноо")
@@ -127,6 +136,23 @@ class Order(models.Model):
         today = timezone.now().date()
         days = (self.due_date - today).days
         return days
+    
+    @property
+    def remaining_amount(self):
+        """Calculate remaining amount after advance payment.
+        
+        If advance amount is zero (default), treat the order as fully paid.
+        """
+        total = self.total_amount or Decimal('0')
+        advance = self.advance_amount or Decimal('0')
+        
+        if advance == Decimal('0'):
+            return Decimal('0')
+        
+        remaining = total - advance
+        if remaining < Decimal('0'):
+            return Decimal('0')
+        return remaining
     
     def get_status_color(self):
         """Return CSS class for status badge"""

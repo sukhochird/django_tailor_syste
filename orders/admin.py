@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import admin
 from .models import Order, ProcessStep, OrderRating, EmployeeRating, OrderStatusHistory
 
@@ -23,7 +25,7 @@ class EmployeeRatingInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['order_number', 'customer', 'item_type', 'current_status', 'total_amount', 'due_date', 'is_overdue', 'days_remaining_display', 'created_at']
+    list_display = ['order_number', 'customer', 'item_type', 'current_status', 'total_amount', 'advance_amount', 'remaining_amount_display', 'due_date', 'is_overdue', 'days_remaining_display', 'created_at']
     list_filter = ['current_status', 'item_type', 'customer__customer_type', 'created_at', 'due_date']
     search_fields = ['order_number', 'customer__first_name', 'customer__last_name', 'item_type', 'material_code']
     ordering = ['-created_at']
@@ -42,7 +44,7 @@ class OrderAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         ('Үнэ', {
-            'fields': ('total_amount',),
+            'fields': ('total_amount', 'advance_amount'),
             'classes': ('collapse',)
         }),
         ('Огноо', {
@@ -72,6 +74,13 @@ class OrderAdmin(admin.ModelAdmin):
         else:
             return f"{abs(days)} хоног хэтэрсэн"
     days_remaining_display.short_description = 'Үлдсэн хугацаа'
+    
+    def remaining_amount_display(self, obj):
+        remaining = obj.remaining_amount
+        if remaining == Decimal('0'):
+            return "Бүрэн төлсөн"
+        return f"{remaining:,.0f}₮"
+    remaining_amount_display.short_description = 'Үлдэгдэл'
 
 
 @admin.register(ProcessStep)

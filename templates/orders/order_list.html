@@ -167,7 +167,17 @@
                                 <span class="text-gray-600">({{ order.days_remaining }} хоног үлдсэн)</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{% show_currency order.total_amount %}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>{% show_currency order.total_amount %}</div>
+                            <div class="text-xs text-gray-500 mt-1">Урьдчилгаа: {% show_currency order.advance_amount %}</div>
+                            <div class="text-xs mt-1">
+                                {% if order.remaining_amount == 0 %}
+                                    <span class="text-green-600 font-medium">Бүрэн төлсөн</span>
+                                {% else %}
+                                    <span class="text-red-600 font-medium">{% show_currency order.remaining_amount %}</span>
+                                {% endif %}
+                            </div>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
