@@ -72,7 +72,7 @@ class ReportListView(SuperuserRequiredMixin, ListView):
             end_date = today
         elif period_filter == 'all_time':
             start_date = None
-            end_date = today
+            end_date = None
         elif period_filter == 'custom':
             # Custom date range
             start_date_str = self.request.GET.get('start_date')
