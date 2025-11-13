@@ -80,24 +80,24 @@ WSGI_APPLICATION = 'tailor_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'ninjeestailor',
-#         'USER': 'gegee',
-#         'PASSWORD': 'dellF912;',
-#         'HOST': '46.101.198.19',
-#         'PORT': '3306',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ninjeestailor',
+        'USER': 'gegee',
+        'PASSWORD': 'dellF912;',
+        'HOST': '46.101.198.19',
+        'PORT': '3306',
+    }
+}
 
 
 
