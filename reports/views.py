@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from django.urls import reverse_lazy
 from django.db import models
-from django.db.models import Count, Sum, Avg, Q
+from django.db.models import Count, Sum, Avg, Q, F, Case, When, Value, ExpressionWrapper
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
@@ -140,15 +140,44 @@ class ReportListView(SuperuserRequiredMixin, ListView):
         else:
             order_change_percent = 0 if total_orders == 0 else 100
         
-        # Total revenue - sum of all orders in the period (regardless of status)
-        total_revenue = current_period_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+        # Revenue calculations
+        decimal_output = models.DecimalField(max_digits=12, decimal_places=2)
         
+        collected_expression = Case(
+            When(advance_amount__gt=0, then=F('advance_amount')),
+            default=F('total_amount'),
+            output_field=decimal_output
+        )
+        
+        outstanding_expression = Case(
+            When(
+                advance_amount__gt=0,
+                then=ExpressionWrapper(
+                    F('total_amount') - F('advance_amount'),
+                    output_field=decimal_output
+                )
+            ),
+            default=Value(0),
+            output_field=decimal_output
+        )
+        
+        total_revenue = current_period_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
         total_revenue_previous = previous_period_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+        
+        collected_revenue = current_period_orders.aggregate(total=Sum(collected_expression))['total'] or Decimal('0')
+        collected_revenue_previous = previous_period_orders.aggregate(total=Sum(collected_expression))['total'] or Decimal('0')
+        
+        outstanding_revenue = current_period_orders.aggregate(total=Sum(outstanding_expression))['total'] or Decimal('0')
         
         if total_revenue_previous > 0:
             revenue_change_percent = ((total_revenue - total_revenue_previous) / total_revenue_previous * 100)
         else:
             revenue_change_percent = 0 if total_revenue == 0 else 100
+        
+        if collected_revenue_previous > 0:
+            collected_change_percent = ((collected_revenue - collected_revenue_previous) / collected_revenue_previous * 100)
+        else:
+            collected_change_percent = 0 if collected_revenue == 0 else 100
         
         # Completed orders
         completed_orders = current_period_orders.filter(current_status='seamstress_finished').count()
@@ -241,7 +270,14 @@ class ReportListView(SuperuserRequiredMixin, ListView):
                 province_orders = province_orders.filter(created_at__date__lte=end_date)
             
             order_count = province_orders.count()
-            province_revenue = province_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+            province_totals = province_orders.aggregate(
+                total=Sum('total_amount'),
+                collected=Sum(collected_expression),
+                outstanding=Sum(outstanding_expression)
+            )
+            province_revenue = province_totals.get('total') or Decimal('0')
+            province_collected = province_totals.get('collected') or Decimal('0')
+            province_outstanding = province_totals.get('outstanding') or Decimal('0')
             
             if customer_count > 0 or order_count > 0:
                 province_stats.append({
@@ -249,7 +285,9 @@ class ReportListView(SuperuserRequiredMixin, ListView):
                     'code': province_code,
                     'customers': customer_count,
                     'orders': order_count,
-                    'revenue': province_revenue
+                    'revenue': province_revenue,
+                    'collected': province_collected,
+                    'outstanding': province_outstanding
                 })
         
         # Sort by customers count descending
@@ -266,6 +304,9 @@ class ReportListView(SuperuserRequiredMixin, ListView):
         
         context['total_revenue'] = total_revenue
         context['revenue_change_percent'] = revenue_change_percent
+        context['collected_revenue'] = collected_revenue
+        context['collected_change_percent'] = collected_change_percent
+        context['outstanding_revenue'] = outstanding_revenue
         
         context['completed_orders'] = completed_orders
         context['completion_rate'] = completion_rate
